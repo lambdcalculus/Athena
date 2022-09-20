@@ -33,6 +33,7 @@ import (
 	"github.com/MangosArentLiterature/Athena/internal/permissions"
 	"github.com/MangosArentLiterature/Athena/internal/sliceutil"
 	"go.uber.org/ratelimit"
+	"github.com/leonelquinteros/gotext"
 )
 
 type MuteState int
@@ -102,12 +103,12 @@ func (client *Client) HandleClient() {
 		}
 	}
 	if mc >= config.MCLimit && config.MCLimit != 0 {
-		client.SendPacket("BD", "You have reached the server's multiclient limit.")
+		client.SendPacket("BD", gotext.Get("You have reached the server's multiclient limit."))
 		client.conn.Close()
 		return
 	}
 
-	logger.LogDebugf("%v connected", client.ipid)
+	logger.LogDebugf(gotext.Get("%v connected", client.ipid))
 	clients.AddClient(client)
 
 	go timeout(client)
@@ -133,7 +134,7 @@ func (client *Client) HandleClient() {
 	for input.Scan() {
 		rl.Take()
 		if logger.DebugNetwork {
-			logger.LogDebugf("From %v: %v", client.ipid, strings.TrimSpace(input.Text()))
+			logger.LogDebugf(gotext.Get("From %v: %v", client.ipid, strings.TrimSpace(input.Text())))
 		}
 		packet, err := packet.NewPacket(strings.TrimSpace(input.Text()))
 		if err != nil {
@@ -147,7 +148,7 @@ func (client *Client) HandleClient() {
 			v.Func(client, packet)
 		}
 	}
-	logger.LogDebugf("%v disconnected", client.ipid)
+	logger.LogDebugf(gotext.Get("%v disconnected", client.ipid))
 }
 
 // write sends the given message to the client's network socket.
@@ -155,7 +156,7 @@ func (client *Client) write(message string) {
 	client.mu.Lock()
 	fmt.Fprint(client.conn, message)
 	if logger.DebugNetwork {
-		logger.LogDebugf("To %v: %v", client.ipid, message)
+		logger.LogDebugf(gotext.Get("To %v: %v", client.ipid, message))
 	}
 	client.mu.Unlock()
 }
@@ -168,7 +169,7 @@ func (client *Client) SendPacket(header string, contents ...string) {
 // clientClenup cleans up a disconnected client.
 func (client *Client) clientCleanup() {
 	if client.Uid() != -1 {
-		logger.LogInfof("Client (IPID:%v UID:%v) left the server", client.ipid, client.Uid())
+		logger.LogInfof(gotext.Get("Client (IPID:%v UID:%v) left the server", client.ipid, client.Uid()))
 
 		if client.Area().PlayerCount() <= 1 {
 			client.Area().Reset()
@@ -419,7 +420,7 @@ func (client *Client) RemoveAuth() {
 	client.mu.Lock()
 	client.authenticated, client.perms, client.mod_name = false, 0, ""
 	client.mu.Unlock()
-	client.SendServerMessage("Logged out as moderator.")
+	client.SendServerMessage(gotext.Get("Logged out as moderator."))
 	client.SendPacket("AUTH", "-1")
 }
 
@@ -432,12 +433,12 @@ func (client *Client) CheckBanned(by db.BanLookup) {
 	case db.IPID:
 		banned, baninfo, err = db.IsBanned(by, client.Ipid())
 		if err != nil {
-			logger.LogErrorf("Error reading IP ban for %v: %v", client.Ipid(), err)
+			logger.LogErrorf(gotext.Get("Error reading IP ban for %v: %v", client.Ipid(), err))
 		}
 	case db.HDID:
 		banned, baninfo, err = db.IsBanned(by, client.Hdid())
 		if err != nil {
-			logger.LogErrorf("Error reading HDID ban for %v: %v", client.Ipid(), err)
+			logger.LogErrorf(gotext.Get("Error reading HDID ban for %v: %v", client.Ipid(), err))
 		}
 	}
 
@@ -448,7 +449,7 @@ func (client *Client) CheckBanned(by db.BanLookup) {
 		} else {
 			duration = time.Unix(baninfo.Duration, 0).UTC().Format("02 Jan 2006 15:04 MST")
 		}
-		client.SendPacket("BD", fmt.Sprintf("%v\nUntil: %v\nID: %v", baninfo.Reason, duration, baninfo.Id))
+		client.SendPacket("BD", fmt.Sprintf(gotext.Get("%v\nUntil: %v\nID: %v", baninfo.Reason, duration, baninfo.Id)))
 		client.conn.Close()
 		return
 	}
@@ -474,7 +475,7 @@ func (client *Client) ChangeArea(a *area.Area) bool {
 		!permissions.HasPermission(client.Perms(), permissions.PermissionField["BYPASS_LOCK"]) {
 		return false
 	}
-	addToBuffer(client, "AREA", "Left area.", false)
+	addToBuffer(client, "AREA", gotext.Get("Left area."), false)
 	if client.Area().PlayerCount() <= 1 {
 		client.Area().Reset()
 		sendLockArup()
@@ -494,7 +495,7 @@ func (client *Client) ChangeArea(a *area.Area) bool {
 	} else {
 		writeToArea(a, "CharsCheck", a.Taken()...)
 	}
-	addToBuffer(client, "AREA", "Joined area.", false)
+	addToBuffer(client, "AREA", gotext.Get("Joined area."), false)
 	return true
 }
 
@@ -562,7 +563,7 @@ func (client *Client) CanJud() bool {
 // CheckUnmute checks the client's mute duration, unmuting them if nessecary, and returning whether the client is still muted.
 func (client *Client) CheckUnmute() bool {
 	if time.Now().UTC().After(client.UnmuteTime()) && !client.UnmuteTime().IsZero() {
-		client.SendServerMessage("You have been unmuted.")
+		client.SendServerMessage(gotext.Get("You have been unmuted."))
 		client.SetMuted(Unmuted)
 		return true
 	}
@@ -588,9 +589,9 @@ func (client *Client) ToggleNarrator() {
 	client.narrator = !client.narrator
 	client.mu.Unlock()	
 	if client.narrator {
-		client.SendServerMessage("You are now in narrator mode.")
+		client.SendServerMessage(gotext.Get("You are now in narrator mode."))
 	} else {
-		client.SendServerMessage("You are no longer in narrator mode.")
+		client.SendServerMessage(gotext.Get("You are no longer in narrator mode."))
 	}
 }
 
@@ -675,9 +676,9 @@ func (m MuteState) String() string {
 	case ICOOCMuted:
 		return "IC/OOC"
 	case MusicMuted:
-		return "from changing the music"
+		return gotext.Get("from changing the music")
 	case JudMuted:
-		return "from judge controls"
+		return gotext.Get("from judge controls")
 	}
 	return ""
 }

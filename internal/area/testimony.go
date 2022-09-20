@@ -19,6 +19,7 @@ package area
 import (
 	"fmt"
 	"strings"
+	"github.com/leonelquinteros/gotext"
 )
 
 // TstState returns the testimony recorder's current state.
@@ -69,7 +70,7 @@ func (a *Area) TstRemove() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	if len(a.tr.Testimony) < 2 {
-		return fmt.Errorf("empty testimony")
+		return fmt.Errorf(gotext.Get("empty testimony"))
 	}
 	a.tr.Testimony = append(a.tr.Testimony[:a.tr.Index], a.tr.Testimony[a.tr.Index+1:]...)
 	return nil

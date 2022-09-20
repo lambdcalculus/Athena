@@ -26,6 +26,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/MangosArentLiterature/Athena/internal/area"
 	"github.com/MangosArentLiterature/Athena/internal/permissions"
+	"github.com/leonelquinteros/gotext"
 )
 
 // Stores the path to the config directory
@@ -42,6 +43,7 @@ type ServerConfig struct {
 	Port         int    `toml:"port"`
 	Name         string `toml:"name"`
 	Desc         string `toml:"description"`
+	Language     string `toml:"language"`
 	MaxPlayers   int    `toml:"max_players"`
 	MaxMsg       int    `toml:"max_message_length"`
 	BanLen       string `toml:"default_ban_duration"`
@@ -76,6 +78,7 @@ func defaultConfig() *Config {
 			Port:         27016,
 			Name:         "Unnamed Server",
 			Desc:         "",
+			Language:     "en_US",
 			MaxPlayers:   100,
 			MaxMsg:       256,
 			BanLen:       "3d",
@@ -166,7 +169,7 @@ func LoadAreas() ([]area.AreaData, error) {
 		return conf.Area, err
 	}
 	if len(conf.Area) == 0 {
-		return conf.Area, fmt.Errorf("empty arealist")
+		return conf.Area, fmt.Errorf(gotext.Get("empty arealist"))
 	}
 	return conf.Area, nil
 }
@@ -181,7 +184,7 @@ func LoadRoles() ([]permissions.Role, error) {
 		return conf.Role, err
 	}
 	if len(conf.Role) == 0 {
-		return conf.Role, fmt.Errorf("empty rolelist")
+		return conf.Role, fmt.Errorf(gotext.Get("empty rolelist"))
 	}
 	return conf.Role, nil
 }

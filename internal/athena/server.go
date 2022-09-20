@@ -41,6 +41,7 @@ import (
 	"github.com/ecnepsnai/discord"
 	"github.com/xhit/go-str2duration/v2"
 	"nhooyr.io/websocket"
+	"github.com/leonelquinteros/gotext"
 )
 
 const version = "v1.0.2"
@@ -76,7 +77,7 @@ func InitServer(conf *settings.Config) error {
 	if err != nil {
 		return err
 	} else if len(characters) == 0 {
-		return fmt.Errorf("empty character list")
+		return fmt.Errorf(gotext.Get("empty character list"))
 	}
 	areaData, err := settings.LoadAreas()
 	if err != nil {
@@ -92,18 +93,18 @@ func InitServer(conf *settings.Config) error {
 	if err != nil {
 		return err
 	} else if len(backgrounds) == 0 {
-		return fmt.Errorf("empty background list")
+		return fmt.Errorf(gotext.Get("empty background list"))
 	}
 
 	parrot, err = settings.LoadFile("/parrot.txt")
 	if err != nil {
 		return err
 	} else if len(parrot) == 0 {
-		return fmt.Errorf("empty parrot list")
+		return fmt.Errorf(gotext.Get("empty parrot list"))
 	}
 	_, err = str2duration.ParseDuration(conf.BanLen)
 	if err != nil {
-		return fmt.Errorf("failed to parse default_ban_duration: %v", err.Error())
+		return fmt.Errorf(gotext.Get("failed to parse default_ban_duration: %v", err.Error()))
 	}
 
 	// Discord webhook.
@@ -125,11 +126,11 @@ func InitServer(conf *settings.Config) error {
 		case "mods":
 			evi_mode = area.EviMods
 		default:
-			logger.LogWarningf("Area %v has an invalid or undefined evidence mode, defaulting to 'cms'.", a.Name)
+			logger.LogWarningf(gotext.Get("Area %v has an invalid or undefined evidence mode, defaulting to 'cms'.", a.Name))
 			evi_mode = area.EviCMs
 		}
 		if a.Bg == "" || !sliceutil.ContainsString(backgrounds, a.Bg) {
-			logger.LogWarningf("Area %v has an invalid or undefined background, defaulting to 'default'.", a.Name)
+			logger.LogWarningf(gotext.Get("Area %v has an invalid or undefined background, defaulting to 'default'.", a.Name))
 			a.Bg = "default"
 		}
 		areas = append(areas, area.NewArea(a, len(characters), conf.BufSize, evi_mode))
@@ -156,7 +157,7 @@ func ListenTCP() {
 		FatalError <- err
 		return
 	}
-	logger.LogDebug("TCP listener started.")
+	logger.LogDebug(gotext.Get("TCP listener started."))
 	defer listener.Close()
 
 	for {
@@ -166,7 +167,7 @@ func ListenTCP() {
 		}
 		ipid := getIpid(conn.RemoteAddr().String())
 		if logger.DebugNetwork {
-			logger.LogDebugf("Connection recieved from %v", ipid)
+			logger.LogDebugf(gotext.Get("Connection recieved from %v", ipid))
 		}
 		client := NewClient(conn, ipid)
 		go client.HandleClient()
@@ -180,7 +181,7 @@ func ListenWS() {
 		FatalError <- err
 		return
 	}
-	logger.LogDebug("WS listener started.")
+	logger.LogDebug(gotext.Get("WS listener started."))
 	defer listener.Close()
 
 	s := &http.Server{}
@@ -200,7 +201,7 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 	}
 	ipid := getIpid(r.RemoteAddr)
 	if logger.DebugNetwork {
-		logger.LogDebugf("Connection recieved from %v", ipid)
+		logger.LogDebugf(gotext.Get("Connection recieved from %v", ipid))
 	}
 	client := NewClient(websocket.NetConn(context.TODO(), c, websocket.MessageText), ipid)
 	go client.HandleClient()
@@ -293,7 +294,7 @@ func getRole(name string) (permissions.Role, error) {
 			return role, nil
 		}
 	}
-	return permissions.Role{}, fmt.Errorf("role does not exist")
+	return permissions.Role{}, fmt.Errorf(gotext.Get("role does not exist"))
 }
 
 // getClientByUid returns the client with the given uid.
@@ -303,7 +304,7 @@ func getClientByUid(uid int) (*Client, error) {
 			return c, nil
 		}
 	}
-	return nil, fmt.Errorf("client does not exist")
+	return nil, fmt.Errorf(gotext.Get("client does not exist"))
 }
 
 // getClientsByIpid returns all clients with the given ipid.

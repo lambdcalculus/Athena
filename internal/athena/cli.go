@@ -22,7 +22,8 @@ import (
 	"strings"
 
 	"github.com/MangosArentLiterature/Athena/internal/db"
-	"github.com/MangosArentLiterature/Athena/internal/logger"
+	"github.com/MangosArentLiterature/Athena/internal/logger"	
+	"github.com/leonelquinteros/gotext"
 )
 
 // ListenInput listens for input on stdin, parsing any commands.
@@ -32,49 +33,49 @@ func ListenInput() {
 		cmd := strings.Split(input.Text(), " ")
 		switch cmd[0] {
 		case "help":
-			logger.LogInfo("Recognized commands: help, mkusr, rmusr, players, getlog, say.")
+			logger.LogInfo(gotext.Get("Recognized commands: help, mkusr, rmusr, players, getlog, say."))
 		case "mkusr":
 			if len(cmd) < 4 {
-				logger.LogInfo("Not enough arguments for command mkusr. Usage: mkusr <username> <password> <role>.")
+				logger.LogInfo(gotext.Get("Not enough arguments for command mkusr. Usage: mkusr <username> <password> <role>."))
 				break
 			}
 			if db.UserExists(cmd[1]) {
-				logger.LogInfo("User already exists.")
+				logger.LogInfo(gotext.Get("User already exists."))
 				return
 			}
 			user := cmd[1]
 			pass := cmd[2]
 			role, err := getRole(cmd[3])
 			if err != nil {
-				logger.LogInfo("Invalid role.")
+				logger.LogInfo(gotext.Get("Invalid role."))
 				break
 			}
 
 			err = db.CreateUser(user, []byte(pass), role.GetPermissions())
 			if err != nil {
-				logger.LogInfof("Failed to create user: %v.", err.Error())
+				logger.LogInfof(gotext.Get("Failed to create user: %v.", err.Error()))
 				break
 			}
-			logger.LogInfof("Sucessfully created user %v.", user)
+			logger.LogInfof(gotext.Get("Sucessfully created user %v.", user))
 		case "rmusr":
 			if len(cmd) < 2 {
-				logger.LogInfo("Not enough arguments for command rmusr. Usage: rmusr <username>.")
+				logger.LogInfo(gotext.Get("Not enough arguments for command rmusr. Usage: rmusr <username>."))
 				break
 			}
 			if !db.UserExists(cmd[1]) {
-				logger.LogInfo("User does not exist.")
+				logger.LogInfo(gotext.Get("User does not exist."))
 			}
 			err := db.RemoveUser(cmd[1])
 			if err != nil {
-				logger.LogInfof("Failed to remove user: %v.", err.Error())
+				logger.LogInfof(gotext.Get("Failed to remove user: %v.", err.Error()))
 				break
 			}
-			logger.LogInfof("Sucessfully removed user %v.", cmd[1])
+			logger.LogInfof(gotext.Get("Sucessfully removed user %v.", cmd[1]))
 		case "players":
-			logger.LogInfof("There are currently %v/%v players online.", players.GetPlayerCount(), config.MaxPlayers)
+			logger.LogInfof(gotext.Get("There are currently %v/%v players online.", players.GetPlayerCount(), config.MaxPlayers))
 		case "getlog":
 			if len(cmd) < 2 {
-				logger.LogInfo("Not enough arguments for command getlog. Usage: getlog <area>.")
+				logger.LogInfo(gotext.Get("Not enough arguments for command getlog. Usage: getlog <area>."))
 				break
 			}
 			for _, a := range areas {
@@ -84,14 +85,14 @@ func ListenInput() {
 			}
 		case "say":
 			if len(cmd) < 2 {
-				logger.LogInfo("Not enough arguments for command say. Usage: say <message>.")
+				logger.LogInfo(gotext.Get("Not enough arguments for command say. Usage: say <message>."))
 				break
 			}
 			for c := range clients.GetAllClients() {
 				c.SendServerMessage(cmd[1])
 			}
 		default:
-			logger.LogInfo("Unrecognized command")
+			logger.LogInfo(gotext.Get("Unrecognized command"))
 		}
 	}
 }

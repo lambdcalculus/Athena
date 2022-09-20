@@ -20,6 +20,7 @@ package packet
 import (
 	"fmt"
 	"strings"
+	"github.com/leonelquinteros/gotext"
 )
 
 // Packet represents an AO2 network packet.
@@ -34,7 +35,7 @@ func NewPacket(data string) (*Packet, error) {
 	p := &Packet{}
 	s := strings.Split(data, "#")
 	if strings.TrimSpace(s[0]) == "" {
-		return nil, fmt.Errorf("packet header cannot be empty")
+		return nil, fmt.Errorf(gotext.Get("packet header cannot be empty"))
 	}
 	p.Header = s[0]
 	s = s[1:] // Remove header

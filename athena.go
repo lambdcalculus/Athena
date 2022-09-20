@@ -28,6 +28,7 @@ import (
 	"github.com/MangosArentLiterature/Athena/internal/logger"
 	"github.com/MangosArentLiterature/Athena/internal/settings"
 	"github.com/MangosArentLiterature/Athena/internal/sliceutil"
+	"github.com/leonelquinteros/gotext"
 )
 
 var (
@@ -46,10 +47,11 @@ func main() {
 		logger.LogFatalf("failed to read config: %v", err)
 		os.Exit(1)
 	}
+	gotext.Configure("locales", config.Language, "athena")
 	logger.LogPath = path.Clean(config.LogDir)
 	if _, err := os.Stat(logger.LogPath); os.IsNotExist(err) {
 		if err := os.Mkdir(logger.LogPath, 0755); err != nil {
-			logger.LogErrorf("failed to make logdir: %v", err)
+			logger.LogErrorf(gotext.Get("failed to make logdir: %v", err))
 		}
 	}
 
@@ -72,11 +74,11 @@ func main() {
 
 	err = athena.InitServer(config)
 	if err != nil {
-		logger.LogFatalf("Failed to initalize server: %v", err)
+		logger.LogFatalf(gotext.Get("Failed to initalize server: %v", err))
 		athena.CleanupServer()
 		os.Exit(1)
 	}
-	logger.LogInfo("Started server.")
+	logger.LogInfo(gotext.Get("Started server."))
 	go athena.ListenTCP()
 	if config.EnableWS {
 		go athena.ListenWS()
@@ -94,5 +96,5 @@ func main() {
 		break
 	}
 	athena.CleanupServer()
-	logger.LogInfo("Stopping server.")
+	logger.LogInfo(gotext.Get("Stopping server."))
 }

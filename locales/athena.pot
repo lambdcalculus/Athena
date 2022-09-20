@@ -1,0 +1,927 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the athena package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: athena v1.0.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-09-18 19:32-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: internal/ms/ms.go:58 internal/ms/ms.go:64
+msgid "Failed to post advertisement: %v"
+msgstr ""
+
+#: internal/area/testimony.go:73
+msgid "empty testimony"
+msgstr ""
+
+#: internal/webhook/webhook.go:35
+msgid "%v sent a modcall in %v."
+msgstr ""
+
+#: internal/athena/server.go:80
+msgid "empty character list"
+msgstr ""
+
+#: internal/athena/server.go:96
+msgid "empty background list"
+msgstr ""
+
+#: internal/athena/server.go:103
+msgid "empty parrot list"
+msgstr ""
+
+#: internal/athena/server.go:107
+msgid "failed to parse default_ban_duration: %v"
+msgstr ""
+
+#: internal/athena/server.go:129
+msgid "Area %v has an invalid or undefined evidence mode, defaulting to 'cms'."
+msgstr ""
+
+#: internal/athena/server.go:133
+msgid ""
+"Area %v has an invalid or undefined background, defaulting to 'default'."
+msgstr ""
+
+#: internal/athena/server.go:160
+msgid "TCP listener started."
+msgstr ""
+
+#: internal/athena/server.go:170 internal/athena/server.go:204
+msgid "Connection recieved from %v"
+msgstr ""
+
+#: internal/athena/server.go:184
+msgid "WS listener started."
+msgstr ""
+
+#: internal/athena/server.go:297
+msgid "role does not exist"
+msgstr ""
+
+#: internal/athena/server.go:307
+msgid "client does not exist"
+msgstr ""
+
+#: internal/athena/client.go:106
+msgid "You have reached the server's multiclient limit."
+msgstr ""
+
+#: internal/athena/client.go:111
+msgid "%v connected"
+msgstr ""
+
+#: internal/athena/client.go:137
+msgid "From %v: %v"
+msgstr ""
+
+#: internal/athena/client.go:151
+msgid "%v disconnected"
+msgstr ""
+
+#: internal/athena/client.go:159
+msgid "To %v: %v"
+msgstr ""
+
+#: internal/athena/client.go:172
+msgid "Client (IPID:%v UID:%v) left the server"
+msgstr ""
+
+#: internal/athena/client.go:423
+msgid "Logged out as moderator."
+msgstr ""
+
+#: internal/athena/client.go:436
+msgid "Error reading IP ban for %v: %v"
+msgstr ""
+
+#: internal/athena/client.go:441
+msgid "Error reading HDID ban for %v: %v"
+msgstr ""
+
+#: internal/athena/client.go:452
+msgid ""
+"%v\n"
+"Until: %v\n"
+"ID: %v"
+msgstr ""
+
+#: internal/athena/client.go:478
+msgid "Left area."
+msgstr ""
+
+#: internal/athena/client.go:498
+msgid "Joined area."
+msgstr ""
+
+#: internal/athena/client.go:566 internal/athena/commands.go:1168
+msgid "You have been unmuted."
+msgstr ""
+
+#: internal/athena/client.go:592
+msgid "You are now in narrator mode."
+msgstr ""
+
+#: internal/athena/client.go:594
+msgid "You are no longer in narrator mode."
+msgstr ""
+
+#: internal/athena/client.go:679
+msgid "from changing the music"
+msgstr ""
+
+#: internal/athena/client.go:681
+msgid "from judge controls"
+msgstr ""
+
+#: internal/athena/netprotocol.go:105
+msgid "Player limit reached"
+msgstr ""
+
+#: internal/athena/netprotocol.go:106
+msgid "This server is currently full."
+msgstr ""
+
+#: internal/athena/netprotocol.go:142
+msgid "Client (IPID:%v UID:%v) joined the server"
+msgstr ""
+
+#: internal/athena/netprotocol.go:159
+msgid "You are not allowed to speak in this area."
+msgstr ""
+
+#: internal/athena/netprotocol.go:225
+msgid "Iniswapping is not allowed in this area."
+msgstr ""
+
+#: internal/athena/netprotocol.go:228 internal/athena/netprotocol.go:470
+msgid "Your message exceeds the maximum message length!"
+msgstr ""
+
+#: internal/athena/netprotocol.go:247
+msgid "Your showname is too long!"
+msgstr ""
+
+#: internal/athena/netprotocol.go:309
+msgid "Unable to add message: Max statements reached."
+msgstr ""
+
+#: internal/athena/netprotocol.go:321
+msgid "Unable to insert message: Max statements reached."
+msgstr ""
+
+#: internal/athena/netprotocol.go:330
+msgid "Cannot edit testimony title."
+msgstr ""
+
+#: internal/athena/netprotocol.go:384 internal/athena/commands.go:1265
+msgid "You are not allowed to change the music in this area."
+msgstr ""
+
+#: internal/athena/netprotocol.go:392
+msgid "Stopped the music."
+msgstr ""
+
+#: internal/athena/netprotocol.go:394
+msgid "Changed music to %v."
+msgstr ""
+
+#: internal/athena/netprotocol.go:410 internal/athena/commands.go:798
+msgid "You are not invited to that area."
+msgstr ""
+
+#: internal/athena/netprotocol.go:412 internal/athena/commands.go:800
+msgid "Moved to %v."
+msgstr ""
+
+#: internal/athena/netprotocol.go:422
+msgid "You are not allowed to change the penalty bar in this area."
+msgstr ""
+
+#: internal/athena/netprotocol.go:446
+msgid "Set %v HP to %v."
+msgstr ""
+
+#: internal/athena/netprotocol.go:452
+msgid "You are not allowed to play WT/CE in this area."
+msgstr ""
+
+#: internal/athena/netprotocol.go:460
+msgid "Played WT/CE animation."
+msgstr ""
+
+#: internal/athena/netprotocol.go:467
+msgid "Invalid username."
+msgstr ""
+
+#: internal/athena/netprotocol.go:477
+msgid "That username is already taken."
+msgstr ""
+
+#: internal/athena/netprotocol.go:492
+msgid "You are muted from speaking in OOC."
+msgstr ""
+
+#: internal/athena/netprotocol.go:502 internal/athena/netprotocol.go:513
+#: internal/athena/netprotocol.go:528 internal/athena/commands.go:606
+msgid "You are not allowed to alter evidence in this area."
+msgstr ""
+
+#: internal/athena/netprotocol.go:507
+msgid "Added evidence: %v | %v"
+msgstr ""
+
+#: internal/athena/netprotocol.go:522
+msgid "Removed evidence %v."
+msgstr ""
+
+#: internal/athena/netprotocol.go:537
+msgid "Updated evidence %v to %v | %v"
+msgstr ""
+
+#: internal/athena/netprotocol.go:551
+msgid "Called moderator for reason: %v"
+msgstr ""
+
+#: internal/athena/netprotocol.go:587
+msgid "You are not allowed to send case alerts in this area."
+msgstr ""
+
+#: internal/athena/netprotocol.go:590
+msgid "CASEA#CASE ANNOUNCEMENT: %v in %v needs players for %v#%v#1#%%"
+msgstr ""
+
+#: internal/athena/commands.go:131
+msgid "Recognized commands:\n"
+msgstr ""
+
+#: internal/athena/commands.go:137
+msgid "Invalid command."
+msgstr ""
+
+#: internal/athena/commands.go:144
+msgid "Not enough arguments.\n"
+msgstr ""
+
+#: internal/athena/commands.go:149 internal/athena/commands.go:422
+#: internal/athena/commands.go:439 internal/athena/commands.go:779
+#: internal/athena/commands.go:811 internal/athena/commands.go:1291
+msgid "You do not have permission to use that command."
+msgstr ""
+
+#: internal/athena/commands.go:157
+msgid "You are already logged in."
+msgstr ""
+
+#: internal/athena/commands.go:161
+msgid "Attempted login as %v."
+msgstr ""
+
+#: internal/athena/commands.go:166
+msgid "Logged in as moderator."
+msgstr ""
+
+#: internal/athena/commands.go:168
+msgid "Welcome, %v."
+msgstr ""
+
+#: internal/athena/commands.go:169
+msgid "Logged in as %v."
+msgstr ""
+
+#: internal/athena/commands.go:173
+msgid "Failed login as %v."
+msgstr ""
+
+#: internal/athena/commands.go:179
+msgid "You are not logged in."
+msgstr ""
+
+#: internal/athena/commands.go:181
+msgid "Logged out as %v."
+msgstr ""
+
+#: internal/athena/commands.go:188 internal/athena/cli.go:43
+msgid "User already exists."
+msgstr ""
+
+#: internal/athena/commands.go:194 internal/athena/commands.go:233
+#: internal/athena/cli.go:50
+msgid "Invalid role."
+msgstr ""
+
+#: internal/athena/commands.go:200
+msgid "Invalid username/password."
+msgstr ""
+
+#: internal/athena/commands.go:203
+msgid "User created."
+msgstr ""
+
+#: internal/athena/commands.go:204
+msgid "Created user %v."
+msgstr ""
+
+#: internal/athena/commands.go:210 internal/athena/commands.go:238
+#: internal/athena/cli.go:66
+msgid "User does not exist."
+msgstr ""
+
+#: internal/athena/commands.go:215
+msgid "Failed to remove user."
+msgstr ""
+
+#: internal/athena/commands.go:219
+msgid "Removed user."
+msgstr ""
+
+#: internal/athena/commands.go:226
+msgid "Removed user %v."
+msgstr ""
+
+#: internal/athena/commands.go:244
+msgid "Failed to change permissions."
+msgstr ""
+
+#: internal/athena/commands.go:248
+msgid "Role updated."
+msgstr ""
+
+#: internal/athena/commands.go:255
+msgid "Updated role of %v to %v."
+msgstr ""
+
+#: internal/athena/commands.go:269 internal/athena/commands.go:279
+#: internal/athena/commands.go:310 internal/athena/commands.go:320
+#: internal/athena/commands.go:767 internal/athena/commands.go:948
+#: internal/athena/commands.go:1040 internal/athena/commands.go:1133
+#: internal/athena/commands.go:1192
+msgid "Not enough arguments:\n"
+msgstr ""
+
+#: internal/athena/commands.go:293 internal/athena/commands.go:387
+msgid "Kicked %v clients."
+msgstr ""
+
+#: internal/athena/commands.go:295
+msgid "Kicked %v from server for reason: %v."
+msgstr ""
+
+#: internal/athena/commands.go:331 internal/athena/commands.go:1051
+msgid "Failed to ban: Cannot parse duration."
+msgstr ""
+
+#: internal/athena/commands.go:358
+msgid "Banned %v clients."
+msgstr ""
+
+#: internal/athena/commands.go:360
+msgid "Banned %v from server for %v: %v."
+msgstr ""
+
+#: internal/athena/commands.go:366
+msgid "Failed to kick: Cannot kick a user from area 0."
+msgstr ""
+
+#: internal/athena/commands.go:378
+msgid "You can't kick yourself from the area."
+msgstr ""
+
+#: internal/athena/commands.go:382 internal/athena/commands.go:590
+msgid "You were kicked from the area!"
+msgstr ""
+
+#: internal/athena/commands.go:388
+msgid "Kicked %v from area."
+msgstr ""
+
+#: internal/athena/commands.go:394
+msgid "You do not have permission to change the background in this area."
+msgstr ""
+
+#: internal/athena/commands.go:401
+msgid "Invalid background."
+msgstr ""
+
+#: internal/athena/commands.go:406
+msgid "%v set the background to %v."
+msgstr ""
+
+#: internal/athena/commands.go:407
+msgid "Set BG to %v."
+msgstr ""
+
+#: internal/athena/commands.go:412
+msgid ""
+"Running Athena version %v.\n"
+"Athena is open source software; for documentation, bug reports, and source "
+"code, see: %v"
+msgstr ""
+
+#: internal/athena/commands.go:419
+msgid "You are spectating; you cannot become a CM."
+msgstr ""
+
+#: internal/athena/commands.go:428
+msgid "You are already a CM in this area."
+msgstr ""
+
+#: internal/athena/commands.go:431
+msgid "This area already has a CM."
+msgstr ""
+
+#: internal/athena/commands.go:435
+msgid "Successfully became a CM."
+msgstr ""
+
+#: internal/athena/commands.go:436
+msgid "CMed self."
+msgstr ""
+
+#: internal/athena/commands.go:450
+msgid "You have become a CM in this area."
+msgstr ""
+
+#: internal/athena/commands.go:455
+msgid "CMed %v users."
+msgstr ""
+
+#: internal/athena/commands.go:456
+msgid "CMed %v."
+msgstr ""
+
+#: internal/athena/commands.go:465
+msgid "You are not a CM in this area."
+msgstr ""
+
+#: internal/athena/commands.go:469 internal/athena/commands.go:480
+msgid "You are no longer a CM in this area."
+msgstr ""
+
+#: internal/athena/commands.go:470
+msgid "Un-CMed self."
+msgstr ""
+
+#: internal/athena/commands.go:485
+msgid "Un-CMed %v users."
+msgstr ""
+
+#: internal/athena/commands.go:486
+msgid "Un-CMed %v."
+msgstr ""
+
+#: internal/athena/commands.go:507
+msgid ""
+"Status not recognized. Recognized statuses: idle, looking-for-players, "
+"casing, recess, rp, gaming"
+msgstr ""
+
+#: internal/athena/commands.go:510
+msgid "%v set the status to %v."
+msgstr ""
+
+#: internal/athena/commands.go:512
+msgid "Set the status to %v."
+msgstr ""
+
+#: internal/athena/commands.go:519
+msgid "%v set the area to spectatable."
+msgstr ""
+
+#: internal/athena/commands.go:520
+msgid "Set the area to spectatable."
+msgstr ""
+
+#: internal/athena/commands.go:523
+msgid "This area is already locked."
+msgstr ""
+
+#: internal/athena/commands.go:526
+msgid "You cannot lock area 0."
+msgstr ""
+
+#: internal/athena/commands.go:530
+msgid "%v locked the area."
+msgstr ""
+
+#: internal/athena/commands.go:531
+msgid "Locked the area."
+msgstr ""
+
+#: internal/athena/commands.go:544
+msgid "This area is not locked."
+msgstr ""
+
+#: internal/athena/commands.go:550
+msgid "%v unlocked the area."
+msgstr ""
+
+#: internal/athena/commands.go:551
+msgid "Unlocked the area."
+msgstr ""
+
+#: internal/athena/commands.go:557 internal/athena/commands.go:578
+msgid "This area is unlocked."
+msgstr ""
+
+#: internal/athena/commands.go:565
+msgid "You were invited to area %v."
+msgstr ""
+
+#: internal/athena/commands.go:571
+msgid "Invited %v users."
+msgstr ""
+
+#: internal/athena/commands.go:572
+msgid "Invited %v to the area."
+msgstr ""
+
+#: internal/athena/commands.go:593
+msgid "You were uninvited from area %v."
+msgstr ""
+
+#: internal/athena/commands.go:599
+msgid "Uninvited %v users."
+msgstr ""
+
+#: internal/athena/commands.go:600
+msgid "Uninvited %v to the area."
+msgstr ""
+
+#: internal/athena/commands.go:618
+msgid "Evidence swapped."
+msgstr ""
+
+#: internal/athena/commands.go:620
+msgid "Swapped posistions of evidence %v and %v."
+msgstr ""
+
+#: internal/athena/commands.go:622
+msgid "Invalid arguments."
+msgstr ""
+
+#: internal/athena/commands.go:629
+msgid "You are not allowed to change the evidence mode."
+msgstr ""
+
+#: internal/athena/commands.go:635
+msgid "You do not have permission for this evidence mode."
+msgstr ""
+
+#: internal/athena/commands.go:644
+msgid "Invalid evidence mode."
+msgstr ""
+
+#: internal/athena/commands.go:647
+msgid "%v set the evidence mode to %v."
+msgstr ""
+
+#: internal/athena/commands.go:648
+msgid "Set the evidence mode to %v."
+msgstr ""
+
+#: internal/athena/commands.go:662 internal/athena/commands.go:680
+#: internal/athena/commands.go:698 internal/athena/commands.go:716
+#: internal/athena/commands.go:734 internal/athena/commands.go:752
+#: internal/athena/commands.go:908
+msgid "Argument not recognized."
+msgstr ""
+
+#: internal/athena/commands.go:665
+msgid "%v has %v non-interrupting preanims in this area."
+msgstr ""
+
+#: internal/athena/commands.go:666
+msgid "Set non-interrupting preanims to %v."
+msgstr ""
+
+#: internal/athena/commands.go:683
+msgid "%v has %v iniswapping in this area."
+msgstr ""
+
+#: internal/athena/commands.go:684
+msgid "Set iniswapping to %v."
+msgstr ""
+
+#: internal/athena/commands.go:701
+msgid "%v has %v the BG list in this area."
+msgstr ""
+
+#: internal/athena/commands.go:702
+msgid "Set the BG list to %v."
+msgstr ""
+
+#: internal/athena/commands.go:719
+msgid "%v has %v the background in this area."
+msgstr ""
+
+#: internal/athena/commands.go:720
+msgid "Set the background to %v."
+msgstr ""
+
+#: internal/athena/commands.go:737
+msgid "%v has %v CM-only music in this area."
+msgstr ""
+
+#: internal/athena/commands.go:738
+msgid "Set CM-only music list to %v."
+msgstr ""
+
+#: internal/athena/commands.go:754
+msgid "%v has %v CMs in this area."
+msgstr ""
+
+#: internal/athena/commands.go:755
+msgid "Set allowing CMs to %v."
+msgstr ""
+
+#: internal/athena/commands.go:772 internal/athena/commands.go:1221
+#: internal/athena/commands.go:1230
+msgid "Invalid area."
+msgstr ""
+
+#: internal/athena/commands.go:789
+msgid "You were moved to %v."
+msgstr ""
+
+#: internal/athena/commands.go:794
+msgid "Moved %v users."
+msgstr ""
+
+#: internal/athena/commands.go:795
+msgid "Moved %v to %v."
+msgstr ""
+
+#: internal/athena/commands.go:823
+msgid "You were moved back to character select."
+msgstr ""
+
+#: internal/athena/commands.go:828
+msgid "Moved %v users to character select."
+msgstr ""
+
+#: internal/athena/commands.go:829
+msgid "Moved %v to character select."
+msgstr ""
+
+#: internal/athena/commands.go:855 internal/athena/commands.go:864
+msgid ""
+"%v:\n"
+"%v players online.\n"
+msgstr ""
+
+#: internal/athena/commands.go:876
+msgid ""
+"\n"
+"BG: %v\n"
+"Evi mode: %v\n"
+"Allow iniswap: %v\n"
+"Non-interrupting pres: %v\n"
+"CMs allowed: %v\n"
+"Force BG list: %v\n"
+"BG locked: %v\n"
+"Music locked: %v"
+msgstr ""
+
+#: internal/athena/commands.go:894
+msgid "You are muted from sending OOC messages."
+msgstr ""
+
+#: internal/athena/commands.go:915
+msgid "Invalid num/side."
+msgstr ""
+
+#: internal/athena/commands.go:924
+msgid "Results: %v."
+msgstr ""
+
+#: internal/athena/commands.go:926
+msgid "%v rolled %v. Results: %v."
+msgstr ""
+
+#: internal/athena/commands.go:928
+msgid "Rolled %v."
+msgstr ""
+
+#: internal/athena/commands.go:976
+msgid ""
+"\n"
+"ID: %v\n"
+"IPID: %v\n"
+"HDID: %v\n"
+"Banned on: %v\n"
+"Until: %v\n"
+"Reason: %v\n"
+"Moderator: %v\n"
+"----------"
+msgstr ""
+
+#: internal/athena/commands.go:982
+msgid "No ban with that ID exists."
+msgstr ""
+
+#: internal/athena/commands.go:989
+msgid "No bans with that IPID exist."
+msgstr ""
+
+#: internal/athena/commands.go:998
+msgid "while getting recent bans: %v"
+msgstr ""
+
+#: internal/athena/commands.go:999
+msgid "An unexpected error occured."
+msgstr ""
+
+#: internal/athena/commands.go:1025 internal/athena/commands.go:1026
+msgid "Nullified bans: %v"
+msgstr ""
+
+#: internal/athena/commands.go:1079
+msgid "Updated bans: %v"
+msgstr ""
+
+#: internal/athena/commands.go:1081
+msgid "Edited bans: %v to duration: %v."
+msgstr ""
+
+#: internal/athena/commands.go:1084
+msgid "Edited bans: %v to reason: %v."
+msgstr ""
+
+#: internal/athena/commands.go:1125
+msgid "You have been muted from %v"
+msgstr ""
+
+#: internal/athena/commands.go:1127 internal/athena/commands.go:1186
+msgid " for %v seconds"
+msgstr ""
+
+#: internal/athena/commands.go:1130 internal/athena/commands.go:1189
+msgid " for reason: "
+msgstr ""
+
+#: internal/athena/commands.go:1154
+msgid "Muted %v clients."
+msgstr ""
+
+#: internal/athena/commands.go:1155
+msgid "Muted %v."
+msgstr ""
+
+#: internal/athena/commands.go:1173
+msgid "Unmuted %v clients."
+msgstr ""
+
+#: internal/athena/commands.go:1174
+msgid "Unmuted %v."
+msgstr ""
+
+#: internal/athena/commands.go:1184
+msgid "You have been turned into a parrot"
+msgstr ""
+
+#: internal/athena/commands.go:1213
+msgid "Parroted %v clients."
+msgstr ""
+
+#: internal/athena/commands.go:1214
+msgid "Parroted %v."
+msgstr ""
+
+#: internal/athena/commands.go:1241
+msgid "This area does not have a doc set."
+msgstr ""
+
+#: internal/athena/commands.go:1248
+msgid "You do not have permission to change the doc."
+msgstr ""
+
+#: internal/athena/commands.go:1252
+msgid "%v cleared the doc."
+msgstr ""
+
+#: internal/athena/commands.go:1256
+msgid "%v updated the doc."
+msgstr ""
+
+#: internal/athena/commands.go:1274
+msgid "Error parsing URL."
+msgstr ""
+
+#: internal/athena/commands.go:1285
+msgid "This area has no recorded testimony."
+msgstr ""
+
+#: internal/athena/commands.go:1297
+msgid "The recorder is currently active."
+msgstr ""
+
+#: internal/athena/commands.go:1302
+msgid "Recording testimony."
+msgstr ""
+
+#: internal/athena/commands.go:1305
+msgid "Recorder stopped."
+msgstr ""
+
+#: internal/athena/commands.go:1310
+msgid "No testimony recorded."
+msgstr ""
+
+#: internal/athena/commands.go:1314
+msgid "Playing testimony."
+msgstr ""
+
+#: internal/athena/commands.go:1319 internal/athena/commands.go:1325
+#: internal/athena/commands.go:1331
+msgid "The recorder is not active."
+msgstr ""
+
+#: internal/athena/commands.go:1337
+msgid "Failed to delete statement."
+msgstr ""
+
+#: internal/athena/cli.go:36
+msgid "Recognized commands: help, mkusr, rmusr, players, getlog, say."
+msgstr ""
+
+#: internal/athena/cli.go:39
+msgid ""
+"Not enough arguments for command mkusr. Usage: mkusr <username> <password> "
+"<role>."
+msgstr ""
+
+#: internal/athena/cli.go:56
+msgid "Failed to create user: %v."
+msgstr ""
+
+#: internal/athena/cli.go:59
+msgid "Sucessfully created user %v."
+msgstr ""
+
+#: internal/athena/cli.go:62
+msgid "Not enough arguments for command rmusr. Usage: rmusr <username>."
+msgstr ""
+
+#: internal/athena/cli.go:70
+msgid "Failed to remove user: %v."
+msgstr ""
+
+#: internal/athena/cli.go:73
+msgid "Sucessfully removed user %v."
+msgstr ""
+
+#: internal/athena/cli.go:75
+msgid "There are currently %v/%v players online."
+msgstr ""
+
+#: internal/athena/cli.go:78
+msgid "Not enough arguments for command getlog. Usage: getlog <area>."
+msgstr ""
+
+#: internal/athena/cli.go:88
+msgid "Not enough arguments for command say. Usage: say <message>."
+msgstr ""
+
+#: internal/athena/cli.go:95
+msgid "Unrecognized command"
+msgstr ""
+
+#: internal/packet/aopacket.go:38
+msgid "packet header cannot be empty"
+msgstr ""
+
+#: internal/settings/config.go:172
+msgid "empty arealist"
+msgstr ""
+
+#: internal/settings/config.go:187
+msgid "empty rolelist"
+msgstr ""
+
+#: athena.go:54
+msgid "failed to make logdir: %v"
+msgstr ""
+
+#: athena.go:77
+msgid "Failed to initalize server: %v"
+msgstr ""
+
+#: athena.go:81
+msgid "Started server."
+msgstr ""
+
+#: athena.go:99
+msgid "Stopping server."
+msgstr ""

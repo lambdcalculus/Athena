@@ -34,6 +34,7 @@ import (
 	"github.com/MangosArentLiterature/Athena/internal/permissions"
 	"github.com/MangosArentLiterature/Athena/internal/sliceutil"
 	"github.com/xhit/go-str2duration/v2"
+	"github.com/leonelquinteros/gotext"
 )
 
 type cmdParamList struct {
@@ -127,25 +128,25 @@ func ParseCommand(client *Client, command string, args []string) {
 			}
 		}
 		sort.Strings(s)
-		client.SendServerMessage("Recognized commands:\n" + strings.Join(s, "\n") + "\n\nTo view detailed usage on a command, do /<command> -h")
+		client.SendServerMessage(gotext.Get("Recognized commands:\n" + strings.Join(s, "\n") + "\n\nTo view detailed usage on a command, do /<command> -h"))
 		return
 	}
 
 	cmd := commands[command]
 	if cmd.Func == nil {
-		client.SendServerMessage("Invalid command.")
+		client.SendServerMessage(gotext.Get("Invalid command."))
 		return
 	} else if permissions.HasPermission(client.Perms(), cmd.Permission) || (cmd.Permission == permissions.PermissionField["CM"] && client.Area().HasCM(client.Uid())) {
 		if sliceutil.ContainsString(args, "-h") {
 			client.SendServerMessage(cmd.Usage)
 			return
 		} else if len(args) < cmd.Args {
-			client.SendServerMessage("Not enough arguments.\n" + cmd.Usage)
+			client.SendServerMessage(gotext.Get("Not enough arguments.\n" + cmd.Usage))
 			return
 		}
 		cmd.Func(client, args, cmd.Usage)
 	} else {
-		client.SendServerMessage("You do not have permission to use that command.")
+		client.SendServerMessage(gotext.Get("You do not have permission to use that command."))
 		return
 	}
 }
@@ -153,105 +154,105 @@ func ParseCommand(client *Client, command string, args []string) {
 // Handles /login
 func cmdLogin(client *Client, args []string, _ string) {
 	if client.Authenticated() {
-		client.SendServerMessage("You are already logged in.")
+		client.SendServerMessage(gotext.Get("You are already logged in."))
 		return
 	}
 	auth, perms := db.AuthenticateUser(args[0], []byte(args[1]))
-	addToBuffer(client, "AUTH", fmt.Sprintf("Attempted login as %v.", args[0]), true)
+	addToBuffer(client, "AUTH", fmt.Sprintf(gotext.Get("Attempted login as %v.", args[0])), true)
 	if auth {
 		client.SetAuthenticated(true)
 		client.SetPerms(perms)
 		client.SetModName(args[0])
-		client.SendServerMessage("Logged in as moderator.")
+		client.SendServerMessage(gotext.Get("Logged in as moderator."))
 		client.SendPacket("AUTH", "1")
-		client.SendServerMessage(fmt.Sprintf("Welcome, %v.", args[0]))
-		addToBuffer(client, "AUTH", fmt.Sprintf("Logged in as %v.", args[0]), true)
+		client.SendServerMessage(fmt.Sprintf(gotext.Get("Welcome, %v.", args[0])))
+		addToBuffer(client, "AUTH", fmt.Sprintf(gotext.Get("Logged in as %v.", args[0])), true)
 		return
 	}
 	client.SendPacket("AUTH", "0")
-	addToBuffer(client, "AUTH", fmt.Sprintf("Failed login as %v.", args[0]), true)
+	addToBuffer(client, "AUTH", fmt.Sprintf(gotext.Get("Failed login as %v.", args[0])), true)
 }
 
 // Handles /logout
 func cmdLogout(client *Client, _ []string, _ string) {
 	if !client.Authenticated() {
-		client.SendServerMessage("You are not logged in.")
+		client.SendServerMessage(gotext.Get("You are not logged in."))
 	}
-	addToBuffer(client, "AUTH", fmt.Sprintf("Logged out as %v.", client.ModName()), true)
+	addToBuffer(client, "AUTH", fmt.Sprintf(gotext.Get("Logged out as %v.", client.ModName())), true)
 	client.RemoveAuth()
 }
 
 // Handles /mkusr
 func cmdMakeUser(client *Client, args []string, _ string) {
 	if db.UserExists(args[0]) {
-		client.SendServerMessage("User already exists.")
+		client.SendServerMessage(gotext.Get("User already exists."))
 		return
 	}
 
 	role, err := getRole(args[2])
 	if err != nil {
-		client.SendServerMessage("Invalid role.")
+		client.SendServerMessage(gotext.Get("Invalid role."))
 		return
 	}
 	err = db.CreateUser(args[0], []byte(args[1]), role.GetPermissions())
 	if err != nil {
 		logger.LogError(err.Error())
-		client.SendServerMessage("Invalid username/password.")
+		client.SendServerMessage(gotext.Get("Invalid username/password."))
 		return
 	}
-	client.SendServerMessage("User created.")
-	addToBuffer(client, "CMD", fmt.Sprintf("Created user %v.", args[0]), true)
+	client.SendServerMessage(gotext.Get("User created."))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Created user %v.", args[0])), true)
 }
 
 // Handles /rmusr
 func cmdRemoveUser(client *Client, args []string, _ string) {
 	if !db.UserExists(args[0]) {
-		client.SendServerMessage("User does not exist.")
+		client.SendServerMessage(gotext.Get("User does not exist."))
 		return
 	}
 	err := db.RemoveUser(args[0])
 	if err != nil {
-		client.SendServerMessage("Failed to remove user.")
+		client.SendServerMessage(gotext.Get("Failed to remove user."))
 		logger.LogError(err.Error())
 		return
 	}
-	client.SendServerMessage("Removed user.")
+	client.SendServerMessage(gotext.Get("Removed user."))
 
 	for c := range clients.GetAllClients() {
 		if c.Authenticated() && c.ModName() == args[0] {
 			c.RemoveAuth()
 		}
 	}
-	addToBuffer(client, "CMD", fmt.Sprintf("Removed user %v.", args[0]), true)
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Removed user %v.", args[0])), true)
 }
 
 // Handles /setrole
 func cmdChangeRole(client *Client, args []string, _ string) {
 	role, err := getRole(args[1])
 	if err != nil {
-		client.SendServerMessage("Invalid role.")
+		client.SendServerMessage(gotext.Get("Invalid role."))
 		return
 	}
 
 	if !db.UserExists(args[0]) {
-		client.SendServerMessage("User does not exist.")
+		client.SendServerMessage(gotext.Get("User does not exist."))
 		return
 	}
 
 	err = db.ChangePermissions(args[0], role.GetPermissions())
 	if err != nil {
-		client.SendServerMessage("Failed to change permissions.")
+		client.SendServerMessage(gotext.Get("Failed to change permissions."))
 		logger.LogError(err.Error())
 		return
 	}
-	client.SendServerMessage("Role updated.")
+	client.SendServerMessage(gotext.Get("Role updated."))
 
 	for c := range clients.GetAllClients() {
 		if c.Authenticated() && c.ModName() == args[0] {
 			c.SetPerms(role.GetPermissions())
 		}
 	}
-	addToBuffer(client, "CMD", fmt.Sprintf("Updated role of %v to %v.", args[0], args[1]), true)
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Updated role of %v to %v.", args[0], args[1])), true)
 }
 
 // Handles /kick
@@ -265,7 +266,7 @@ func cmdKick(client *Client, args []string, usage string) {
 	flags.Parse(args)
 
 	if len(flags.Args()) < 1 {
-		client.SendServerMessage("Not enough arguments:\n" + usage)
+		client.SendServerMessage(gotext.Get("Not enough arguments:\n") + usage)
 		return
 	}
 
@@ -275,7 +276,7 @@ func cmdKick(client *Client, args []string, usage string) {
 	} else if len(*ipids) > 0 {
 		toKick = getIpidList(*ipids)
 	} else {
-		client.SendServerMessage("Not enough arguments:\n" + usage)
+		client.SendServerMessage(gotext.Get("Not enough arguments:\n") + usage)
 		return
 	}
 
@@ -289,9 +290,9 @@ func cmdKick(client *Client, args []string, usage string) {
 		count++
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Kicked %v clients.", count))
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Kicked %v clients.", count)))
 	sendPlayerArup()
-	addToBuffer(client, "CMD", fmt.Sprintf("Kicked %v from server for reason: %v.", report, reason), true)
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Kicked %v from server for reason: %v.", report, reason)), true)
 }
 
 // Handles /ban
@@ -306,7 +307,7 @@ func cmdBan(client *Client, args []string, usage string) {
 	flags.Parse(args)
 
 	if len(flags.Args()) < 1 {
-		client.SendServerMessage("Not enough arguments:\n" + usage)
+		client.SendServerMessage(gotext.Get("Not enough arguments:\n") + usage)
 		return
 	}
 
@@ -316,7 +317,7 @@ func cmdBan(client *Client, args []string, usage string) {
 	} else if len(*ipids) > 0 {
 		toBan = getIpidList(*ipids)
 	} else {
-		client.SendServerMessage("Not enough arguments:\n" + usage)
+		client.SendServerMessage(gotext.Get("Not enough arguments:\n") + usage)
 		return
 	}
 
@@ -327,7 +328,7 @@ func cmdBan(client *Client, args []string, usage string) {
 	} else {
 		parsedDur, err := str2duration.ParseDuration(*duration)
 		if err != nil {
-			client.SendServerMessage("Failed to ban: Cannot parse duration.")
+			client.SendServerMessage(gotext.Get("Failed to ban: Cannot parse duration."))
 			return
 		}
 		until = time.Now().UTC().Add(parsedDur).Unix()
@@ -354,15 +355,15 @@ func cmdBan(client *Client, args []string, usage string) {
 		count++
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Banned %v clients.", count))
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Banned %v clients.", count)))
 	sendPlayerArup()
-	addToBuffer(client, "CMD", fmt.Sprintf("Banned %v from server for %v: %v.", report, *duration, reason), true)
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Banned %v from server for %v: %v.", report, *duration, reason)), true)
 }
 
 // Handles /kickarea
 func cmdAreaKick(client *Client, args []string, _ string) {
 	if client.Area() == areas[0] {
-		client.SendServerMessage("Failed to kick: Cannot kick a user from area 0.")
+		client.SendServerMessage(gotext.Get("Failed to kick: Cannot kick a user from area 0."))
 		return
 	}
 	toKick := getUidList(strings.Split(args[0], ","))
@@ -374,68 +375,68 @@ func cmdAreaKick(client *Client, args []string, _ string) {
 			continue
 		}
 		if c == client {
-			client.SendServerMessage("You can't kick yourself from the area.")
+			client.SendServerMessage(gotext.Get("You can't kick yourself from the area."))
 			continue
 		}
 		c.ChangeArea(areas[0])
-		c.SendServerMessage("You were kicked from the area!")
+		c.SendServerMessage(gotext.Get("You were kicked from the area!"))
 		count++
 		report += fmt.Sprintf("%v, ", c.Uid())
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Kicked %v clients.", count))
-	addToBuffer(client, "CMD", fmt.Sprintf("Kicked %v from area.", report), false)
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Kicked %v clients.", count)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Kicked %v from area.", report)), false)
 }
 
 // Handles /bg
 func cmdBg(client *Client, args []string, _ string) {
 	if client.Area().LockBG() && !permissions.HasPermission(client.Perms(), permissions.PermissionField["MODIFY_AREA"]) {
-		client.SendServerMessage("You do not have permission to change the background in this area.")
+		client.SendServerMessage(gotext.Get("You do not have permission to change the background in this area."))
 		return
 	}
 
 	arg := strings.Join(args, " ")
 
 	if client.Area().ForceBGList() && !sliceutil.ContainsString(backgrounds, arg) {
-		client.SendServerMessage("Invalid background.")
+		client.SendServerMessage(gotext.Get("Invalid background."))
 		return
 	}
 	client.Area().SetBackground(arg)
 	writeToArea(client.Area(), "BN", arg)
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v set the background to %v.", client.OOCName(), arg))
-	addToBuffer(client, "CMD", fmt.Sprintf("Set BG to %v.", arg), false)
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v set the background to %v.", client.OOCName(), arg)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Set BG to %v.", arg)), false)
 }
 
 // Handles /about
 func cmdAbout(client *Client, _ []string, _ string) {
-	client.SendServerMessage(fmt.Sprintf("Running Athena version %v.\nAthena is open source software; for documentation, bug reports, and source code, see: %v",
-		version, "https://github.com/MangosArentLiterature/Athena."))
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Running Athena version %v.\nAthena is open source software; for documentation, bug reports, and source code, see: %v",
+		version, "https://github.com/MangosArentLiterature/Athena.")))
 }
 
 // Handles /cm
 func cmdCM(client *Client, args []string, _ string) {
 	if client.CharID() == -1 {
-		client.SendServerMessage("You are spectating; you cannot become a CM.")
+		client.SendServerMessage(gotext.Get("You are spectating; you cannot become a CM."))
 		return
 	} else if !client.Area().CMsAllowed() && !client.HasCMPermission() {
-		client.SendServerMessage("You do not have permission to use that command.")
+		client.SendServerMessage(gotext.Get("You do not have permission to use that command."))
 		return
 	}
 
 	if len(args) == 0 {
 		if client.Area().HasCM(client.Uid()) {
-			client.SendServerMessage("You are already a CM in this area.")
+			client.SendServerMessage(gotext.Get("You are already a CM in this area."))
 			return
 		} else if len(client.Area().CMs()) > 0 && !permissions.HasPermission(client.Perms(), permissions.PermissionField["CM"]) {
-			client.SendServerMessage("This area already has a CM.")
+			client.SendServerMessage(gotext.Get("This area already has a CM."))
 			return
 		}
 		client.Area().AddCM(client.Uid())
-		client.SendServerMessage("Successfully became a CM.")
-		addToBuffer(client, "CMD", "CMed self.", false)
+		client.SendServerMessage(gotext.Get("Successfully became a CM."))
+		addToBuffer(client, "CMD", gotext.Get("CMed self."), false)
 	} else {
 		if !client.HasCMPermission() {
-			client.SendServerMessage("You do not have permission to use that command.")
+			client.SendServerMessage(gotext.Get("You do not have permission to use that command."))
 			return
 		}
 		toCM := getUidList(strings.Split(args[0], ","))
@@ -446,13 +447,13 @@ func cmdCM(client *Client, args []string, _ string) {
 				continue
 			}
 			c.Area().AddCM(c.Uid())
-			c.SendServerMessage("You have become a CM in this area.")
+			c.SendServerMessage(gotext.Get("You have become a CM in this area."))
 			count++
 			report += fmt.Sprintf("%v, ", c.Uid())
 		}
 		report = strings.TrimSuffix(report, ", ")
-		client.SendServerMessage(fmt.Sprintf("CMed %v users.", count))
-		addToBuffer(client, "CMD", fmt.Sprintf("CMed %v.", report), false)
+		client.SendServerMessage(fmt.Sprintf(gotext.Get("CMed %v users.", count)))
+		addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("CMed %v.", report)), false)
 	}
 	sendCMArup()
 }
@@ -461,12 +462,12 @@ func cmdCM(client *Client, args []string, _ string) {
 func cmdUnCM(client *Client, args []string, _ string) {
 	if len(args) == 0 {
 		if !client.Area().HasCM(client.Uid()) {
-			client.SendServerMessage("You are not a CM in this area.")
+			client.SendServerMessage(gotext.Get("You are not a CM in this area."))
 			return
 		}
 		client.Area().RemoveCM(client.Uid())
-		client.SendServerMessage("You are no longer a CM in this area.")
-		addToBuffer(client, "CMD", "Un-CMed self.", false)
+		client.SendServerMessage(gotext.Get("You are no longer a CM in this area."))
+		addToBuffer(client, "CMD", gotext.Get("Un-CMed self."), false)
 	} else {
 		toCM := getUidList(strings.Split(args[0], ","))
 		var count int
@@ -476,13 +477,13 @@ func cmdUnCM(client *Client, args []string, _ string) {
 				continue
 			}
 			c.Area().RemoveCM(c.Uid())
-			c.SendServerMessage("You are no longer a CM in this area.")
+			c.SendServerMessage(gotext.Get("You are no longer a CM in this area."))
 			count++
 			report += fmt.Sprintf("%v, ", c.Uid())
 		}
 		report = strings.TrimSuffix(report, ", ")
-		client.SendServerMessage(fmt.Sprintf("Un-CMed %v users.", count))
-		addToBuffer(client, "CMD", fmt.Sprintf("Un-CMed %v.", report), false)
+		client.SendServerMessage(fmt.Sprintf(gotext.Get("Un-CMed %v users.", count)))
+		addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Un-CMed %v.", report)), false)
 	}
 	sendCMArup()
 }
@@ -503,31 +504,31 @@ func cmdStatus(client *Client, args []string, _ string) {
 	case "gaming":
 		client.Area().SetStatus(area.StatusGaming)
 	default:
-		client.SendServerMessage("Status not recognized. Recognized statuses: idle, looking-for-players, casing, recess, rp, gaming")
+		client.SendServerMessage(gotext.Get("Status not recognized. Recognized statuses: idle, looking-for-players, casing, recess, rp, gaming"))
 		return
 	}
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v set the status to %v.", client.OOCName(), args[0]))
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v set the status to %v.", client.OOCName(), args[0])))
 	sendStatusArup()
-	addToBuffer(client, "CMD", fmt.Sprintf("Set the status to %v.", args[0]), false)
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Set the status to %v.", args[0])), false)
 }
 
 // Handles /lock
 func cmdLock(client *Client, args []string, _ string) {
 	if sliceutil.ContainsString(args, "-s") { // Set area to spectatable.
 		client.Area().SetLock(area.LockSpectatable)
-		sendAreaServerMessage(client.Area(), fmt.Sprintf("%v set the area to spectatable.", client.OOCName()))
-		addToBuffer(client, "CMD", "Set the area to spectatable.", false)
+		sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v set the area to spectatable.", client.OOCName())))
+		addToBuffer(client, "CMD", gotext.Get("Set the area to spectatable."), false)
 	} else { // Normal lock.
 		if client.Area().Lock() == area.LockLocked {
-			client.SendServerMessage("This area is already locked.")
+			client.SendServerMessage(gotext.Get("This area is already locked."))
 			return
 		} else if client.Area() == areas[0] {
-			client.SendServerMessage("You cannot lock area 0.")
+			client.SendServerMessage(gotext.Get("You cannot lock area 0."))
 			return
 		}
 		client.Area().SetLock(area.LockLocked)
-		sendAreaServerMessage(client.Area(), fmt.Sprintf("%v locked the area.", client.OOCName()))
-		addToBuffer(client, "CMD", "Locked the area.", false)
+		sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v locked the area.", client.OOCName())))
+		addToBuffer(client, "CMD", gotext.Get("Locked the area."), false)
 	}
 	for c := range clients.GetAllClients() {
 		if c.Area() == client.Area() {
@@ -540,20 +541,20 @@ func cmdLock(client *Client, args []string, _ string) {
 // Handles /unlock
 func cmdUnlock(client *Client, _ []string, _ string) {
 	if client.Area().Lock() == area.LockFree {
-		client.SendServerMessage("This area is not locked.")
+		client.SendServerMessage(gotext.Get("This area is not locked."))
 		return
 	}
 	client.Area().SetLock(area.LockFree)
 	client.Area().ClearInvited()
 	sendLockArup()
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v unlocked the area.", client.OOCName()))
-	addToBuffer(client, "CMD", "Unlocked the area.", false)
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v unlocked the area.", client.OOCName())))
+	addToBuffer(client, "CMD", gotext.Get("Unlocked the area."), false)
 }
 
 // Handles /invite
 func cmdInvite(client *Client, args []string, _ string) {
 	if client.Area().Lock() == area.LockFree {
-		client.SendServerMessage("This area is unlocked.")
+		client.SendServerMessage(gotext.Get("This area is unlocked."))
 		return
 	}
 	toInvite := getUidList(strings.Split(args[0], ","))
@@ -561,20 +562,20 @@ func cmdInvite(client *Client, args []string, _ string) {
 	var report string
 	for _, c := range toInvite {
 		if client.Area().AddInvited(c.Uid()) {
-			c.SendServerMessage(fmt.Sprintf("You were invited to area %v.", client.Area().Name()))
+			c.SendServerMessage(fmt.Sprintf(gotext.Get("You were invited to area %v.", client.Area().Name())))
 			count++
 			report += fmt.Sprintf("%v, ", c.Uid())
 		}
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Invited %v users.", count))
-	addToBuffer(client, "CMD", fmt.Sprintf("Invited %v to the area.", report), false)
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Invited %v users.", count)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Invited %v to the area.", report)), false)
 }
 
 // Handles /uninvite
 func cmdUninvite(client *Client, args []string, _ string) {
 	if client.Area().Lock() == area.LockFree {
-		client.SendServerMessage("This area is unlocked.")
+		client.SendServerMessage(gotext.Get("This area is unlocked."))
 		return
 	}
 	toUninvite := getUidList(strings.Split(args[0], ","))
@@ -586,23 +587,23 @@ func cmdUninvite(client *Client, args []string, _ string) {
 		}
 		if client.Area().RemoveInvited(c.Uid()) {
 			if c.Area() == client.Area() && client.Area().Lock() == area.LockLocked && !permissions.HasPermission(c.Perms(), permissions.PermissionField["BYPASS_LOCK"]) {
-				c.SendServerMessage("You were kicked from the area!")
+				c.SendServerMessage(gotext.Get("You were kicked from the area!"))
 				c.ChangeArea(areas[0])
 			}
-			c.SendServerMessage(fmt.Sprintf("You were uninvited from area %v.", client.Area().Name()))
+			c.SendServerMessage(fmt.Sprintf(gotext.Get("You were uninvited from area %v.", client.Area().Name())))
 			count++
 			report += fmt.Sprintf("%v, ", c.Uid())
 		}
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Uninvited %v users.", count))
-	addToBuffer(client, "CMD", fmt.Sprintf("Uninvited %v to the area.", report), false)
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Uninvited %v users.", count)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Uninvited %v to the area.", report)), false)
 }
 
 // Handles swapevi
 func cmdSwapEvi(client *Client, args []string, _ string) {
 	if !client.CanAlterEvidence() {
-		client.SendServerMessage("You are not allowed to alter evidence in this area.")
+		client.SendServerMessage(gotext.Get("You are not allowed to alter evidence in this area."))
 		return
 	}
 	evi1, err := strconv.Atoi(args[0])
@@ -614,24 +615,24 @@ func cmdSwapEvi(client *Client, args []string, _ string) {
 		return
 	}
 	if client.Area().SwapEvidence(evi1, evi2) {
-		client.SendServerMessage("Evidence swapped.")
+		client.SendServerMessage(gotext.Get("Evidence swapped."))
 		writeToArea(client.Area(), "LE", client.Area().Evidence()...)
-		addToBuffer(client, "CMD", fmt.Sprintf("Swapped posistions of evidence %v and %v.", evi1, evi2), false)
+		addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Swapped posistions of evidence %v and %v.", evi1, evi2)), false)
 	} else {
-		client.SendServerMessage("Invalid arguments.")
+		client.SendServerMessage(gotext.Get("Invalid arguments."))
 	}
 }
 
 // Handles /evimode
 func cmdSetEviMod(client *Client, args []string, _ string) {
 	if !client.CanAlterEvidence() {
-		client.SendServerMessage("You are not allowed to change the evidence mode.")
+		client.SendServerMessage(gotext.Get("You are not allowed to change the evidence mode."))
 		return
 	}
 	switch args[0] {
 	case "mods":
 		if !permissions.HasPermission(client.Perms(), permissions.PermissionField["MOD_EVI"]) {
-			client.SendServerMessage("You do not have permission for this evidence mode.")
+			client.SendServerMessage(gotext.Get("You do not have permission for this evidence mode."))
 			return
 		}
 		client.Area().SetEvidenceMode(area.EviMods)
@@ -640,11 +641,11 @@ func cmdSetEviMod(client *Client, args []string, _ string) {
 	case "any":
 		client.Area().SetEvidenceMode(area.EviAny)
 	default:
-		client.SendServerMessage("Invalid evidence mode.")
+		client.SendServerMessage(gotext.Get("Invalid evidence mode."))
 		return
 	}
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v set the evidence mode to %v.", client.OOCName(), args[0]))
-	addToBuffer(client, "CMD", fmt.Sprintf("Set the evidence mode to %v.", args[0]), false)
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v set the evidence mode to %v.", client.OOCName(), args[0])))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Set the evidence mode to %v.", args[0])), false)
 }
 
 // Handles /nointpres
@@ -658,11 +659,11 @@ func cmdNoIntPres(client *Client, args []string, _ string) {
 		client.Area().SetNoInterrupt(false)
 		result = "disabled"
 	default:
-		client.SendServerMessage("Argument not recognized.")
+		client.SendServerMessage(gotext.Get("Argument not recognized."))
 		return
 	}
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v has %v non-interrupting preanims in this area.", client.OOCName(), result))
-	addToBuffer(client, "CMD", fmt.Sprintf("Set non-interrupting preanims to %v.", args[0]), false)
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v has %v non-interrupting preanims in this area.", client.OOCName(), result)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Set non-interrupting preanims to %v.", args[0])), false)
 }
 
 // Handles /allowiniswap
@@ -676,11 +677,11 @@ func cmdAllowIniswap(client *Client, args []string, _ string) {
 		client.Area().SetIniswapAllowed(false)
 		result = "disabled"
 	default:
-		client.SendServerMessage("Argument not recognized.")
+		client.SendServerMessage(gotext.Get("Argument not recognized."))
 		return
 	}
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v has %v iniswapping in this area.", client.OOCName(), result))
-	addToBuffer(client, "CMD", fmt.Sprintf("Set iniswapping to %v.", args[0]), false)
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v has %v iniswapping in this area.", client.OOCName(), result)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Set iniswapping to %v.", args[0])), false)
 }
 
 // Handles /forcebglist
@@ -694,11 +695,11 @@ func cmdForceBGList(client *Client, args []string, _ string) {
 		client.Area().SetForceBGList(false)
 		result = "unenforced"
 	default:
-		client.SendServerMessage("Argument not recognized.")
+		client.SendServerMessage(gotext.Get("Argument not recognized."))
 		return
 	}
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v has %v the BG list in this area.", client.OOCName(), result))
-	addToBuffer(client, "CMD", fmt.Sprintf("Set the BG list to %v.", args[0]), false)
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v has %v the BG list in this area.", client.OOCName(), result)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Set the BG list to %v.", args[0])), false)
 }
 
 // Handles /lockbg
@@ -712,11 +713,11 @@ func cmdLockBG(client *Client, args []string, _ string) {
 		client.Area().SetLockBG(false)
 		result = "unlocked"
 	default:
-		client.SendServerMessage("Argument not recognized.")
+		client.SendServerMessage(gotext.Get("Argument not recognized."))
 		return
 	}
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v has %v the background in this area.", client.OOCName(), result))
-	addToBuffer(client, "CMD", fmt.Sprintf("Set the background to %v.", args[0]), false)
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v has %v the background in this area.", client.OOCName(), result)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Set the background to %v.", args[0])), false)
 }
 
 // Handles /lockmusic
@@ -730,11 +731,11 @@ func cmdLockMusic(client *Client, args []string, _ string) {
 		client.Area().SetLockMusic(false)
 		result = "disabled"
 	default:
-		client.SendServerMessage("Argument not recognized.")
+		client.SendServerMessage(gotext.Get("Argument not recognized."))
 		return
 	}
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v has %v CM-only music in this area.", client.OOCName(), result))
-	addToBuffer(client, "CMD", fmt.Sprintf("Set CM-only music list to %v.", args[0]), false)
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v has %v CM-only music in this area.", client.OOCName(), result)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Set CM-only music list to %v.", args[0])), false)
 }
 
 // Handles /allowcms
@@ -748,10 +749,10 @@ func cmdAllowCMs(client *Client, args []string, _ string) {
 		client.Area().SetCMsAllowed(false)
 		result = "disallowed"
 	default:
-		client.SendServerMessage("Argument not recognized.")
+		client.SendServerMessage(gotext.Get("Argument not recognized."))
 	}
-	sendAreaServerMessage(client.Area(), fmt.Sprintf("%v has %v CMs in this area.", client.OOCName(), result))
-	addToBuffer(client, "CMD", fmt.Sprintf("Set allowing CMs to %v.", args[0]), false)
+	sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v has %v CMs in this area.", client.OOCName(), result)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Set allowing CMs to %v.", args[0])), false)
 }
 
 // Handles /move
@@ -763,19 +764,19 @@ func cmdMove(client *Client, args []string, usage string) {
 	flags.Parse(args)
 
 	if len(flags.Args()) < 1 {
-		client.SendServerMessage("Not enough arguments:\n" + usage)
+		client.SendServerMessage(gotext.Get("Not enough arguments:\n") + usage)
 		return
 	}
 	areaID, err := strconv.Atoi(flags.Arg(0))
 	if err != nil || areaID < 0 || areaID > len(areas)-1 {
-		client.SendServerMessage("Invalid area.")
+		client.SendServerMessage(gotext.Get("Invalid area."))
 		return
 	}
 	wantedArea := areas[areaID]
 
 	if len(*uids) > 0 {
 		if !permissions.HasPermission(client.Perms(), permissions.PermissionField["MOVE_USERS"]) {
-			client.SendServerMessage("You do not have permission to use that command.")
+			client.SendServerMessage(gotext.Get("You do not have permission to use that command."))
 			return
 		}
 		toMove := getUidList(*uids)
@@ -785,18 +786,18 @@ func cmdMove(client *Client, args []string, usage string) {
 			if !c.ChangeArea(wantedArea) {
 				continue
 			}
-			c.SendServerMessage(fmt.Sprintf("You were moved to %v.", wantedArea.Name()))
+			c.SendServerMessage(fmt.Sprintf(gotext.Get("You were moved to %v.", wantedArea.Name())))
 			count++
 			report += fmt.Sprintf("%v, ", c.Uid())
 		}
 		report = strings.TrimSuffix(report, ", ")
-		client.SendServerMessage(fmt.Sprintf("Moved %v users.", count))
-		addToBuffer(client, "CMD", fmt.Sprintf("Moved %v to %v.", report, wantedArea.Name()), false)
+		client.SendServerMessage(fmt.Sprintf(gotext.Get("Moved %v users.", count)))
+		addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Moved %v to %v.", report, wantedArea.Name())), false)
 	} else {
 		if !client.ChangeArea(wantedArea) {
-			client.SendServerMessage("You are not invited to that area.")
+			client.SendServerMessage(gotext.Get("You are not invited to that area."))
 		}
-		client.SendServerMessage(fmt.Sprintf("Moved to %v.", wantedArea.Name()))
+		client.SendServerMessage(fmt.Sprintf(gotext.Get("Moved to %v.", wantedArea.Name())))
 	}
 }
 
@@ -807,7 +808,7 @@ func cmdCharSelect(client *Client, args []string, _ string) {
 		client.SendPacket("DONE")
 	} else {
 		if !client.HasCMPermission() {
-			client.SendServerMessage("You do not have permission to use that command.")
+			client.SendServerMessage(gotext.Get("You do not have permission to use that command."))
 			return
 		}
 		toChange := getUidList(strings.Split(args[0], ","))
@@ -819,13 +820,13 @@ func cmdCharSelect(client *Client, args []string, _ string) {
 			}
 			c.ChangeCharacter(-1)
 			c.SendPacket("DONE")
-			c.SendServerMessage("You were moved back to character select.")
+			c.SendServerMessage(gotext.Get("You were moved back to character select."))
 			count++
 			report += fmt.Sprintf("%v, ", c.Uid())
 		}
 		report = strings.TrimSuffix(report, ", ")
-		client.SendServerMessage(fmt.Sprintf("Moved %v users to character select.", count))
-		addToBuffer(client, "CMD", fmt.Sprintf("Moved %v to character select.", report), false)
+		client.SendServerMessage(fmt.Sprintf(gotext.Get("Moved %v users to character select.", count)))
+		addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Moved %v to character select.", report)), false)
 	}
 }
 
@@ -851,7 +852,7 @@ func cmdPlayers(client *Client, args []string, _ string) {
 	}
 	if *all {
 		for _, a := range areas {
-			out += fmt.Sprintf("%v:\n%v players online.\n", a.Name(), a.PlayerCount())
+			out += fmt.Sprintf(gotext.Get("%v:\n%v players online.\n", a.Name(), a.PlayerCount()))
 			for c := range clients.GetAllClients() {
 				if c.Area() == a {
 					out += entry(c, client.Authenticated())
@@ -860,7 +861,7 @@ func cmdPlayers(client *Client, args []string, _ string) {
 			out += "----------\n"
 		}
 	} else {
-		out += fmt.Sprintf("%v:\n%v players online.\n", client.Area().Name(), client.Area().PlayerCount())
+		out += fmt.Sprintf(gotext.Get("%v:\n%v players online.\n", client.Area().Name(), client.Area().PlayerCount()))
 		for c := range clients.GetAllClients() {
 			if c.Area() == client.Area() {
 				out += entry(c, client.Authenticated())
@@ -872,9 +873,9 @@ func cmdPlayers(client *Client, args []string, _ string) {
 
 // Handles /areainfo
 func cmdAreaInfo(client *Client, _ []string, _ string) {
-	out := fmt.Sprintf("\nBG: %v\nEvi mode: %v\nAllow iniswap: %v\nNon-interrupting pres: %v\nCMs allowed: %v\nForce BG list: %v\nBG locked: %v\nMusic locked: %v",
+	out := fmt.Sprintf(gotext.Get("\nBG: %v\nEvi mode: %v\nAllow iniswap: %v\nNon-interrupting pres: %v\nCMs allowed: %v\nForce BG list: %v\nBG locked: %v\nMusic locked: %v",
 		client.Area().Background(), client.Area().EvidenceMode().String(), client.Area().IniswapAllowed(), client.Area().NoInterrupt(),
-		client.Area().CMsAllowed(), client.Area().ForceBGList(), client.Area().LockBG(), client.Area().LockMusic())
+		client.Area().CMsAllowed(), client.Area().ForceBGList(), client.Area().LockBG(), client.Area().LockMusic()))
 	client.SendServerMessage(out)
 }
 
@@ -890,7 +891,7 @@ func cmdPM(client *Client, args []string, _ string) {
 // Handles /global
 func cmdGlobal(client *Client, args []string, _ string) {
 	if !client.CanSpeakOOC() {
-		client.SendServerMessage("You are muted from sending OOC messages.")
+		client.SendServerMessage(gotext.Get("You are muted from sending OOC messages."))
 		return
 	}
 	writeToAll("CT", fmt.Sprintf("[GLOBAL] %v", client.OOCName()), strings.Join(args, " "), "1")
@@ -904,14 +905,14 @@ func cmdRoll(client *Client, args []string, _ string) {
 	flags.Parse(args)
 	b, _ := regexp.MatchString("([[:digit:]])d([[:digit:]])", flags.Arg(0))
 	if !b {
-		client.SendServerMessage("Argument not recognized.")
+		client.SendServerMessage(gotext.Get("Argument not recognized."))
 		return
 	}
 	s := strings.Split(flags.Arg(0), "d")
 	num, _ := strconv.Atoi(s[0])
 	sides, _ := strconv.Atoi(s[1])
 	if num <= 0 || num > config.MaxDice || sides <= 0 || sides > config.MaxSide {
-		client.SendServerMessage("Invalid num/side.")
+		client.SendServerMessage(gotext.Get("Invalid num/side."))
 		return
 	}
 	var result []string
@@ -920,11 +921,11 @@ func cmdRoll(client *Client, args []string, _ string) {
 		result = append(result, fmt.Sprint(gen.Intn(sides)+1))
 	}
 	if *private {
-		client.SendServerMessage(fmt.Sprintf("Results: %v.", strings.Join(result, ", ")))
+		client.SendServerMessage(fmt.Sprintf(gotext.Get("Results: %v.", strings.Join(result, ", "))))
 	} else {
-		sendAreaServerMessage(client.Area(), fmt.Sprintf("%v rolled %v. Results: %v.", client.OOCName(), flags.Arg(0), strings.Join(result, ", ")))
+		sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v rolled %v. Results: %v.", client.OOCName(), flags.Arg(0), strings.Join(result, ", "))))
 	}
-	addToBuffer(client, "CMD", fmt.Sprintf("Rolled %v.", flags.Arg(0)), false)
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Rolled %v.", flags.Arg(0))), false)
 }
 
 // Handles /motd
@@ -944,7 +945,7 @@ func cmdMod(client *Client, args []string, usage string) {
 	global := flags.Bool("g", false, "")
 	flags.Parse(args)
 	if len(flags.Args()) == 0 {
-		client.SendServerMessage("Not enough arguments:\n" + usage)
+		client.SendServerMessage(gotext.Get("Not enough arguments:\n") + usage)
 		return
 	}
 	msg := strings.Join(flags.Args(), " ")
@@ -972,20 +973,20 @@ func cmdGetBan(client *Client, args []string, _ string) {
 			d = time.Unix(b.Duration, 0).UTC().Format("02 Jan 2006 15:04 MST")
 		}
 
-		return fmt.Sprintf("\nID: %v\nIPID: %v\nHDID: %v\nBanned on: %v\nUntil: %v\nReason: %v\nModerator: %v\n----------",
-			b.Id, b.Ipid, b.Hdid, time.Unix(b.Time, 0).UTC().Format("02 Jan 2006 15:04 MST"), d, b.Reason, b.Moderator)
+		return fmt.Sprintf(gotext.Get("\nID: %v\nIPID: %v\nHDID: %v\nBanned on: %v\nUntil: %v\nReason: %v\nModerator: %v\n----------",
+			b.Id, b.Ipid, b.Hdid, time.Unix(b.Time, 0).UTC().Format("02 Jan 2006 15:04 MST"), d, b.Reason, b.Moderator))
 	}
 	if *banid > 0 {
 		b, err := db.GetBan(db.BANID, *banid)
 		if err != nil || len(b) == 0 {
-			client.SendServerMessage("No ban with that ID exists.")
+			client.SendServerMessage(gotext.Get("No ban with that ID exists."))
 			return
 		}
 		s += entry(b[0])
 	} else if *ipid != "" {
 		bans, err := db.GetBan(db.IPID, *ipid)
 		if err != nil || len(bans) == 0 {
-			client.SendServerMessage("No bans with that IPID exist.")
+			client.SendServerMessage(gotext.Get("No bans with that IPID exist."))
 			return
 		}
 		for _, b := range bans {
@@ -994,8 +995,8 @@ func cmdGetBan(client *Client, args []string, _ string) {
 	} else {
 		bans, err := db.GetRecentBans()
 		if err != nil {
-			logger.LogErrorf("while getting recent bans: %v", err)
-			client.SendServerMessage("An unexpected error occured.")
+			logger.LogErrorf(gotext.Get("while getting recent bans: %v", err))
+			client.SendServerMessage(gotext.Get("An unexpected error occured."))
 			return
 		}
 		for _, b := range bans {
@@ -1021,8 +1022,8 @@ func cmdUnban(client *Client, args []string, _ string) {
 		report += fmt.Sprintf("%v, ", s)
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Nullified bans: %v", report))
-	addToBuffer(client, "CMD", fmt.Sprintf("Nullified bans: %v", report), true)
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Nullified bans: %v", report)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Nullified bans: %v", report)), true)
 }
 
 // Handles /editban
@@ -1036,7 +1037,7 @@ func cmdEditBan(client *Client, args []string, usage string) {
 	useReason := *reason != ""
 
 	if len(flags.Args()) == 0 || (!useDur && !useReason) {
-		client.SendServerMessage("Not enough arguments:\n" + usage)
+		client.SendServerMessage(gotext.Get("Not enough arguments:\n") + usage)
 		return
 	}
 	toUpdate := strings.Split(flags.Arg(0), ",")
@@ -1047,7 +1048,7 @@ func cmdEditBan(client *Client, args []string, usage string) {
 		} else {
 			parsedDur, err := str2duration.ParseDuration(*duration)
 			if err != nil {
-				client.SendServerMessage("Failed to ban: Cannot parse duration.")
+				client.SendServerMessage(gotext.Get("Failed to ban: Cannot parse duration."))
 				return
 			}
 			until = time.Now().UTC().Add(parsedDur).Unix()
@@ -1075,12 +1076,12 @@ func cmdEditBan(client *Client, args []string, usage string) {
 		report += fmt.Sprintf("%v, ", s)
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Updated bans: %v", report))
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Updated bans: %v", report)))
 	if useDur {
-		addToBuffer(client, "CMD", fmt.Sprintf("Edited bans: %v to duration: %v.", report, duration), true)
+		addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Edited bans: %v to duration: %v.", report, duration)), true)
 	}
 	if useReason {
-		addToBuffer(client, "CMD", fmt.Sprintf("Edited bans: %v to reason: %v.", report, reason), true)
+		addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Edited bans: %v to reason: %v.", report, reason)), true)
 	}
 }
 
@@ -1121,15 +1122,15 @@ func cmdMute(client *Client, args []string, usage string) {
 	default:
 		m = ICMuted
 	}
-	msg := fmt.Sprintf("You have been muted from %v", m.String())
+	msg := fmt.Sprintf(gotext.Get("You have been muted from %v", m.String()))
 	if *duration != -1 {
-		msg += fmt.Sprintf(" for %v seconds", *duration)
+		msg += fmt.Sprintf(gotext.Get(" for %v seconds", *duration))
 	}
 	if *reason != "" {
-		msg += " for reason: " + *reason
+		msg += gotext.Get(" for reason: ") + *reason
 	}
 	if len(flags.Args()) == 0 {
-		client.SendServerMessage("Not enough arguments:\n" + usage)
+		client.SendServerMessage(gotext.Get("Not enough arguments:\n") + usage)
 		return
 	}
 	toMute := getUidList(strings.Split(flags.Arg(0), ","))
@@ -1150,8 +1151,8 @@ func cmdMute(client *Client, args []string, usage string) {
 		report += fmt.Sprintf("%v, ", c.Uid())
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Muted %v clients.", count))
-	addToBuffer(client, "CMD", fmt.Sprintf("Muted %v.", report), false)
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Muted %v clients.", count)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Muted %v.", report)), false)
 }
 
 // Handles /unmute
@@ -1164,13 +1165,13 @@ func cmdUnmute(client *Client, args []string, _ string) {
 			continue
 		}
 		c.SetMuted(Unmuted)
-		c.SendServerMessage("You have been unmuted.")
+		c.SendServerMessage(gotext.Get("You have been unmuted."))
 		count++
 		report += fmt.Sprintf("%v, ", c.Uid())
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Unmuted %v clients.", count))
-	addToBuffer(client, "CMD", fmt.Sprintf("Unmuted %v.", report), false)
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Unmuted %v clients.", count)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Unmuted %v.", report)), false)
 }
 
 // Handles /Parrot
@@ -1180,15 +1181,15 @@ func cmdParrot(client *Client, args []string, usage string) {
 	reason := flags.String("r", "", "")
 	duration := flags.Int("d", -1, "")
 	flags.Parse(args)
-	msg := "You have been turned into a parrot"
+	msg := gotext.Get("You have been turned into a parrot")
 	if *duration != -1 {
-		msg += fmt.Sprintf(" for %v seconds", *duration)
+		msg += fmt.Sprintf(gotext.Get(" for %v seconds", *duration))
 	}
 	if *reason != "" {
-		msg += " for reason: " + *reason
+		msg += gotext.Get(" for reason: ") + *reason
 	}
 	if len(flags.Args()) == 0 {
-		client.SendServerMessage("Not enough arguments:\n" + usage)
+		client.SendServerMessage(gotext.Get("Not enough arguments:\n") + usage)
 		return
 	}
 	toParrot := getUidList(strings.Split(flags.Arg(0), ","))
@@ -1209,15 +1210,15 @@ func cmdParrot(client *Client, args []string, usage string) {
 		report += fmt.Sprintf("%v, ", c.Uid())
 	}
 	report = strings.TrimSuffix(report, ", ")
-	client.SendServerMessage(fmt.Sprintf("Parroted %v clients.", count))
-	addToBuffer(client, "CMD", fmt.Sprintf("Parroted %v.", report), false)
+	client.SendServerMessage(fmt.Sprintf(gotext.Get("Parroted %v clients.", count)))
+	addToBuffer(client, "CMD", fmt.Sprintf(gotext.Get("Parroted %v.", report)), false)
 }
 
 // Handles /log
 func cmdLog(client *Client, args []string, _ string) {
 	wantedArea, err := strconv.Atoi(args[0])
 	if err != nil {
-		client.SendServerMessage("Invalid area.")
+		client.SendServerMessage(gotext.Get("Invalid area."))
 		return
 	}
 	for i, a := range areas {
@@ -1226,7 +1227,7 @@ func cmdLog(client *Client, args []string, _ string) {
 			return
 		}
 	}
-	client.SendServerMessage("Invalid area.")
+	client.SendServerMessage(gotext.Get("Invalid area."))
 }
 
 // Handles /doc
@@ -1237,22 +1238,22 @@ func cmdDoc(client *Client, args []string, _ string) {
 	flags.Parse(args)
 	if len(args) == 0 {
 		if client.Area().Doc() == "" {
-			client.SendServerMessage("This area does not have a doc set.")
+			client.SendServerMessage(gotext.Get("This area does not have a doc set."))
 			return
 		}
 		client.SendServerMessage(client.Area().Doc())
 		return
 	} else {
 		if !client.HasCMPermission() {
-			client.SendServerMessage("You do not have permission to change the doc.")
+			client.SendServerMessage(gotext.Get("You do not have permission to change the doc."))
 			return
 		} else if *clear {
 			client.Area().SetDoc("")
-			sendAreaServerMessage(client.Area(), fmt.Sprintf("%v cleared the doc.", client.OOCName()))
+			sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v cleared the doc.", client.OOCName())))
 			return
 		} else if len(flags.Args()) != 0 {
 			client.Area().SetDoc(flags.Arg(0))
-			sendAreaServerMessage(client.Area(), fmt.Sprintf("%v updated the doc.", client.OOCName()))
+			sendAreaServerMessage(client.Area(), fmt.Sprintf(gotext.Get("%v updated the doc.", client.OOCName())))
 			return
 		}
 	}
@@ -1261,7 +1262,7 @@ func cmdDoc(client *Client, args []string, _ string) {
 // Handles /play
 func cmdPlay(client *Client, args []string, _ string) {
 	if !client.CanChangeMusic() {
-		client.SendServerMessage("You are not allowed to change the music in this area.")
+		client.SendServerMessage(gotext.Get("You are not allowed to change the music in this area."))
 		return
 	}
 	s := strings.Join(args, " ")
@@ -1270,7 +1271,7 @@ func cmdPlay(client *Client, args []string, _ string) {
 	if _, err := url.ParseRequestURI(s); err == nil {
 		s, err = url.QueryUnescape(s) // Unescape any URL encoding
 		if err != nil {
-			client.SendServerMessage("Error parsing URL.")
+			client.SendServerMessage(gotext.Get("Error parsing URL."))
 			return
 		}
 	}
@@ -1281,59 +1282,59 @@ func cmdPlay(client *Client, args []string, _ string) {
 func cmdTestimony(client *Client, args []string, _ string) {
 	if len(args) == 0 {
 		if !client.Area().HasTestimony() {
-			client.SendServerMessage("This area has no recorded testimony.")
+			client.SendServerMessage(gotext.Get("This area has no recorded testimony."))
 			return
 		}
 		client.SendServerMessage(strings.Join(client.area.Testimony(), "\n"))
 		return
 	} else if !client.HasCMPermission() {
-		client.SendServerMessage("You do not have permission to use that command.")
+		client.SendServerMessage(gotext.Get("You do not have permission to use that command."))
 		return
 	}
 	switch args[0] {
 	case "record":
 		if client.Area().TstState() != area.TRIdle {
-			client.SendServerMessage("The recorder is currently active.")
+			client.SendServerMessage(gotext.Get("The recorder is currently active."))
 			return
 		}
 		client.Area().TstClear()
 		client.Area().SetTstState(area.TRRecording)
-		client.SendServerMessage("Recording testimony.")
+		client.SendServerMessage(gotext.Get("Recording testimony."))
 	case "stop":
 		client.Area().SetTstState(area.TRIdle)
-		client.SendServerMessage("Recorder stopped.")
+		client.SendServerMessage(gotext.Get("Recorder stopped."))
 		client.Area().TstJump(0)
 		writeToArea(client.Area(), "RT", "testimony1#1")
 	case "play":
 		if !client.Area().HasTestimony() {
-			client.SendServerMessage("No testimony recorded.")
+			client.SendServerMessage(gotext.Get("No testimony recorded."))
 			return
 		}
 		client.Area().SetTstState(area.TRPlayback)
-		client.SendServerMessage("Playing testimony.")
+		client.SendServerMessage(gotext.Get("Playing testimony."))
 		writeToArea(client.Area(), "RT", "testimony2")
 		writeToArea(client.Area(), "MS", client.Area().CurrentTstStatement())
 	case "update":
 		if client.Area().TstState() != area.TRPlayback {
-			client.SendServerMessage("The recorder is not active.")
+			client.SendServerMessage(gotext.Get("The recorder is not active."))
 			return
 		}
 		client.Area().SetTstState(area.TRUpdating)
 	case "insert":
 		if client.Area().TstState() != area.TRPlayback {
-			client.SendServerMessage("The recorder is not active.")
+			client.SendServerMessage(gotext.Get("The recorder is not active."))
 			return
 		}
 		client.Area().SetTstState(area.TRInserting)
 	case "delete":
 		if client.Area().TstState() != area.TRPlayback {
-			client.SendServerMessage("The recorder is not active.")
+			client.SendServerMessage(gotext.Get("The recorder is not active."))
 			return
 		}
 		if client.Area().CurrentTstIndex() > 0 {
 			err := client.Area().TstRemove()
 			if err != nil {
-				client.SendServerMessage("Failed to delete statement.")
+				client.SendServerMessage(gotext.Get("Failed to delete statement."))
 			}
 		}
 	}

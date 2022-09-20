@@ -17,6 +17,10 @@ name = "Unnamed Server"
 # The description of your server.
 description = "A brand new server!"
 
+# Which language to use when writing messages to clients or to stdout.
+# options: en_US, pt_BR
+language = en_US
+
 # Sets the server's message of the day (MoTD)
 # This is sent to every player when they first join the server, or with /motd.
 motd = "Welcome to my server!"

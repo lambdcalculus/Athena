@@ -30,6 +30,7 @@ import (
 	"github.com/MangosArentLiterature/Athena/internal/packet"
 	"github.com/MangosArentLiterature/Athena/internal/sliceutil"
 	"github.com/MangosArentLiterature/Athena/internal/webhook"
+	"github.com/leonelquinteros/gotext"
 )
 
 // Documentation for AO2's network protocol can be found here:
@@ -101,8 +102,8 @@ func pktResCount(client *Client, _ *packet.Packet) {
 		return
 	}
 	if players.GetPlayerCount() >= config.MaxPlayers {
-		logger.LogInfo("Player limit reached")
-		client.SendPacket("BD", "This server is currently full.")
+		logger.LogInfo(gotext.Get("Player limit reached"))
+		client.SendPacket("BD", gotext.Get("This server is currently full."))
 		client.conn.Close()
 		return
 	}
@@ -138,7 +139,7 @@ func pktReqDone(client *Client, _ *packet.Packet) {
 	if config.Motd != "" {
 		client.SendServerMessage(config.Motd)
 	}
-	logger.LogInfof("Client (IPID:%v UID:%v) joined the server", client.Ipid(), client.Uid())
+	logger.LogInfof(gotext.Get("Client (IPID:%v UID:%v) joined the server", client.Ipid(), client.Uid()))
 }
 
 // Handles CC#%
@@ -155,7 +156,7 @@ func pktIC(client *Client, p *packet.Packet) {
 	// Welcome to the MS packet validation hell.
 
 	if !client.CanSpeakIC() { // Literally 1984
-		client.SendServerMessage("You are not allowed to speak in this area.")
+		client.SendServerMessage(gotext.Get("You are not allowed to speak in this area."))
 		return
 	}
 	// Clients can send differing numbers of arguments depending on their version.
@@ -221,10 +222,10 @@ func pktIC(client *Client, p *packet.Packet) {
 	case !sliceutil.ContainsString([]string{"chat", "0", "1", "2", "3", "4", "5"}, args[0]): // desk_mod
 		return
 	case !strings.EqualFold(characters[client.CharID()], args[2]) && !client.Area().IniswapAllowed(): // character name
-		client.SendServerMessage("Iniswapping is not allowed in this area.")
+		client.SendServerMessage(gotext.Get("Iniswapping is not allowed in this area."))
 		return
 	case len(decode(args[4])) > config.MaxMsg: // message
-		client.SendServerMessage("Your message exceeds the maximum message length!")
+		client.SendServerMessage(gotext.Get("Your message exceeds the maximum message length!"))
 		return
 	case args[4] == client.LastMsg():
 		return
@@ -243,7 +244,7 @@ func pktIC(client *Client, p *packet.Packet) {
 	case text < 0 || text > 6: // text color
 		return
 	case len(args[15]) > 30: // showname
-		client.SendServerMessage("Your showname is too long!")
+		client.SendServerMessage(gotext.Get("Your showname is too long!"))
 		return
 	case args[22] != "0" && args[22] != "1": // non-interrupting preanim
 		return
@@ -305,7 +306,7 @@ func pktIC(client *Client, p *packet.Packet) {
 		switch client.Area().TstState() {
 		case area.TRRecording:
 			if client.Area().TstLen() >= config.MaxStatement+1 {
-				client.SendServerMessage("Unable to add message: Max statements reached.")
+				client.SendServerMessage(gotext.Get("Unable to add message: Max statements reached."))
 				break
 			}
 			if client.Area().CurrentTstIndex() == 0 {
@@ -317,7 +318,7 @@ func pktIC(client *Client, p *packet.Packet) {
 			client.Area().TstAdvance()
 		case area.TRInserting:
 			if client.Area().TstLen() >= config.MaxStatement {
-				client.SendServerMessage("Unable to insert message: Max statements reached.")
+				client.SendServerMessage(gotext.Get("Unable to insert message: Max statements reached."))
 				client.Area().SetTstState(area.TRPlayback)
 				break
 			}
@@ -326,7 +327,7 @@ func pktIC(client *Client, p *packet.Packet) {
 			client.Area().TstAdvance()
 		case area.TRUpdating:
 			if client.Area().CurrentTstIndex() == 0 {
-				client.SendServerMessage("Cannot edit testimony title.")
+				client.SendServerMessage(gotext.Get("Cannot edit testimony title."))
 				client.Area().SetTstState(area.TRPlayback)
 				break
 			}
@@ -380,7 +381,7 @@ func pktAM(client *Client, p *packet.Packet) {
 
 	if sliceutil.ContainsString(music, p.Body[0]) {
 		if !client.CanChangeMusic() {
-			client.SendServerMessage("You are not allowed to change the music in this area.")
+			client.SendServerMessage(gotext.Get("You are not allowed to change the music in this area."))
 			return
 		}
 		song := p.Body[0]
@@ -388,9 +389,9 @@ func pktAM(client *Client, p *packet.Packet) {
 		effects := "0"
 		if !strings.ContainsRune(p.Body[0], '.') { // Chosen song is a category, and should stop the music.
 			song = "~stop.mp3"
-			addToBuffer(client, "MUSIC", "Stopped the music.", false)
+			addToBuffer(client, "MUSIC", gotext.Get("Stopped the music."), false)
 		} else {
-			addToBuffer(client, "MUSIC", fmt.Sprintf("Changed music to %v.", song), false)
+			addToBuffer(client, "MUSIC", fmt.Sprintf(gotext.Get("Changed music to %v.", song)), false)
 		}
 		if len(p.Body) > 2 {
 			name = p.Body[2]
@@ -406,9 +407,9 @@ func pktAM(client *Client, p *packet.Packet) {
 		for _, a := range areas {
 			if a.Name() == decode(p.Body[0]) {
 				if !client.ChangeArea(a) {
-					client.SendServerMessage("You are not invited to that area.")
+					client.SendServerMessage(gotext.Get("You are not invited to that area."))
 				}
-				client.SendServerMessage(fmt.Sprintf("Moved to %v.", a.Name()))
+				client.SendServerMessage(fmt.Sprintf(gotext.Get("Moved to %v.", a.Name())))
 				return
 			}
 		}
@@ -418,7 +419,7 @@ func pktAM(client *Client, p *packet.Packet) {
 // Handles HP#%
 func pktHP(client *Client, p *packet.Packet) {
 	if client.CharID() == -1 || !client.CanJud() {
-		client.SendServerMessage("You are not allowed to change the penalty bar in this area.")
+		client.SendServerMessage(gotext.Get("You are not allowed to change the penalty bar in this area."))
 		return
 	}
 	bar, err := strconv.Atoi(p.Body[0])
@@ -442,13 +443,13 @@ func pktHP(client *Client, p *packet.Packet) {
 	case 2:
 		side = "Prosecution"
 	}
-	addToBuffer(client, "JUD", fmt.Sprintf("Set %v HP to %v.", side, value), false)
+	addToBuffer(client, "JUD", fmt.Sprintf(gotext.Get("Set %v HP to %v.", side, value)), false)
 }
 
 // Handles RT#%
 func pktWTCE(client *Client, p *packet.Packet) {
 	if client.CharID() == -1 || !client.CanJud() {
-		client.SendServerMessage("You are not allowed to play WT/CE in this area.")
+		client.SendServerMessage(gotext.Get("You are not allowed to play WT/CE in this area."))
 		return
 	}
 	if len(p.Body) >= 2 {
@@ -456,24 +457,24 @@ func pktWTCE(client *Client, p *packet.Packet) {
 	} else {
 		writeToArea(client.Area(), "RT", p.Body[0])
 	}
-	addToBuffer(client, "JUD", "Played WT/CE animation.", false)
+	addToBuffer(client, "JUD", gotext.Get("Played WT/CE animation."), false)
 }
 
 // Handles CT#%
 func pktOOC(client *Client, p *packet.Packet) {
 	username := decode(strings.TrimSpace(p.Body[0]))
 	if username == "" || username == config.Name || len(username) > 30 || strings.ContainsAny(username, "[]") {
-		client.SendServerMessage("Invalid username.")
+		client.SendServerMessage(gotext.Get("Invalid username."))
 		return
 	} else if len(p.Body[1]) > config.MaxMsg {
-		client.SendServerMessage("Your message exceeds the maximum message length!")
+		client.SendServerMessage(gotext.Get("Your message exceeds the maximum message length!"))
 		return
 	} else if strings.TrimSpace(p.Body[1]) == "" {
 		return
 	}
 	for c := range clients.GetAllClients() {
 		if c.OOCName() == p.Body[0] && c != client {
-			client.SendServerMessage("That username is already taken.")
+			client.SendServerMessage(gotext.Get("That username is already taken."))
 			return
 		}
 	}
@@ -488,7 +489,7 @@ func pktOOC(client *Client, p *packet.Packet) {
 		return
 	}
 	if !client.CanSpeakOOC() {
-		client.SendServerMessage("You are muted from speaking in OOC.")
+		client.SendServerMessage(gotext.Get("You are muted from speaking in OOC."))
 		return
 	}
 	writeToArea(client.Area(), "CT", encode(client.OOCName()), p.Body[1], "0")
@@ -498,18 +499,18 @@ func pktOOC(client *Client, p *packet.Packet) {
 // Handles PE#%
 func pktAddEvi(client *Client, p *packet.Packet) {
 	if !client.CanAlterEvidence() {
-		client.SendServerMessage("You are not allowed to alter evidence in this area.")
+		client.SendServerMessage(gotext.Get("You are not allowed to alter evidence in this area."))
 		return
 	}
 	client.Area().AddEvidence(strings.Join(p.Body, "&"))
 	writeToArea(client.Area(), "LE", client.Area().Evidence()...)
-	addToBuffer(client, "EVI", fmt.Sprintf("Added evidence: %v | %v", p.Body[0], p.Body[1]), false)
+	addToBuffer(client, "EVI", fmt.Sprintf(gotext.Get("Added evidence: %v | %v", p.Body[0], p.Body[1])), false)
 }
 
 // Handles DE#%
 func pktRemoveEvi(client *Client, p *packet.Packet) {
 	if !client.CanAlterEvidence() {
-		client.SendServerMessage("You are not allowed to alter evidence in this area.")
+		client.SendServerMessage(gotext.Get("You are not allowed to alter evidence in this area."))
 		return
 	}
 	id, err := strconv.Atoi(p.Body[0])
@@ -518,13 +519,13 @@ func pktRemoveEvi(client *Client, p *packet.Packet) {
 	}
 	client.Area().RemoveEvidence(id)
 	writeToArea(client.Area(), "LE", client.Area().Evidence()...)
-	addToBuffer(client, "EVI", fmt.Sprintf("Removed evidence %v.", id), false)
+	addToBuffer(client, "EVI", fmt.Sprintf(gotext.Get("Removed evidence %v.", id)), false)
 }
 
 // Handles EE#%
 func pktEditEvi(client *Client, p *packet.Packet) {
 	if !client.CanAlterEvidence() {
-		client.SendServerMessage("You are not allowed to alter evidence in this area.")
+		client.SendServerMessage(gotext.Get("You are not allowed to alter evidence in this area."))
 		return
 	}
 	id, err := strconv.Atoi(p.Body[0])
@@ -533,7 +534,7 @@ func pktEditEvi(client *Client, p *packet.Packet) {
 	}
 	client.Area().EditEvidence(id, strings.Join(p.Body[1:], "&"))
 	writeToArea(client.Area(), "LE", client.Area().Evidence()...)
-	addToBuffer(client, "EVI", fmt.Sprintf("Updated evidence %v to %v | %v", id, p.Body[1], p.Body[2]), false)
+	addToBuffer(client, "EVI", fmt.Sprintf(gotext.Get("Updated evidence %v to %v | %v", id, p.Body[1], p.Body[2])), false)
 }
 
 // Handles CH#%
@@ -547,7 +548,7 @@ func pktModcall(client *Client, p *packet.Packet) {
 	if len(p.Body) >= 1 {
 		s = p.Body[0]
 	}
-	addToBuffer(client, "MOD", fmt.Sprintf("Called moderator for reason: %v", s), false)
+	addToBuffer(client, "MOD", fmt.Sprintf(gotext.Get("Called moderator for reason: %v", s)), false)
 	for c := range clients.GetAllClients() {
 		if c.Authenticated() {
 			c.SendPacket("ZZ", fmt.Sprintf("MODCALL\n----------\nArea: %v\nUser: [%v] %v\nIPID: %v\nReason: %v",
@@ -583,11 +584,11 @@ func pktCaseAnn(client *Client, p *packet.Packet) {
 	// Partially because of my own stupidity, and partially because this is the worst packet in AO2.
 
 	if client.CharID() == -1 || !client.HasCMPermission() {
-		client.SendServerMessage("You are not allowed to send case alerts in this area.")
+		client.SendServerMessage(gotext.Get("You are not allowed to send case alerts in this area."))
 		return
 	}
-	newPacket := fmt.Sprintf("CASEA#CASE ANNOUNCEMENT: %v in %v needs players for %v#%v#1#%%",
-		client.CurrentCharacter(), client.Area().Name(), p.Body[0], strings.Join(p.Body[1:], "#")) // Due to a bug, old client versions require this packet to have an extra arg.
+	newPacket := fmt.Sprintf(gotext.Get("CASEA#CASE ANNOUNCEMENT: %v in %v needs players for %v#%v#1#%%",
+		client.CurrentCharacter(), client.Area().Name(), p.Body[0], strings.Join(p.Body[1:], "#"))) // Due to a bug, old client versions require this packet to have an extra arg.
 
 	for c := range clients.GetAllClients() {
 		if c == client {

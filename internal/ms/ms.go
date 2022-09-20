@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/MangosArentLiterature/Athena/internal/logger"
+	"github.com/leonelquinteros/gotext"
 )
 
 type Advertisement struct {
@@ -54,13 +55,13 @@ func Advertise(msUrl string, advert Advertisement, updatePlayers chan (int), don
 func postServer(msUrl string, advert Advertisement) {
 	data, err := json.Marshal(advert)
 	if err != nil {
-		logger.LogErrorf("Failed to post advertisement: %v", err)
+		logger.LogErrorf(gotext.Get("Failed to post advertisement: %v", err))
 		return
 	}
 
 	resp, err := http.Post(msUrl, "application/json", bytes.NewBuffer(data))
 	if err != nil {
-		logger.LogErrorf("Failed to post advertisement: %v", err)
+		logger.LogErrorf(gotext.Get("Failed to post advertisement: %v", err))
 		return
 	}
 	resp.Body.Close()

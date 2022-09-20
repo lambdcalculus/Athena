@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/ecnepsnai/discord"
+	"github.com/leonelquinteros/gotext"
 )
 
 var (
@@ -31,7 +32,7 @@ var (
 // PostModcall sends a modcall to the discord webhook.
 func PostModcall(character string, area string, reason string) error {
 	e := discord.Embed{
-		Title:       fmt.Sprintf("%v sent a modcall in %v.", character, area),
+		Title:       fmt.Sprintf(gotext.Get("%v sent a modcall in %v.", character, area)),
 		Description: reason,
 		Color:       ServerColor,
 	}
